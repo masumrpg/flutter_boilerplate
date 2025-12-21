@@ -61,6 +61,17 @@ Then run:
 flutter pub get
 ```
 
+or
+
+```bash
+flutter pub add flutter_bloc
+flutter pub add equatable
+flutter pub add go_router
+flutter pub add dio
+flutter pub add get_it
+flutter pub add very_good_analysis
+```
+
 ### **3. Run Your App**
 
 ```bash
