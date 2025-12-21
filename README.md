@@ -119,8 +119,9 @@ lib/features/products/
 ```
 
 **New Automations:**
-- ✅ **Auto-Routing**: Automatically injects route into `lib/routes/app_router.dart`.
 - ✅ **Route Constants**: Adds constant to `lib/routes/route_names.dart`.
+- ✅ **Auto-Routing**: Automatically injects route into `lib/routes/app_router.dart` only when sample pages are created (like the home feature).
+- ✅ **Page Routing**: When creating pages with `dart tools/generator.dart page`, routes are automatically injected.
 
 ### **Create Cubit (Simple State)**
 
@@ -156,6 +157,26 @@ dart tools/generator.dart widget product_card
 ```
 
 Creates: `lib/shared/widgets/product_card.dart`
+
+### **Create Page**
+
+For creating UI pages within features:
+
+```bash
+dart tools/generator.dart page products products_detail
+```
+
+Creates: `lib/features/products/ui/pages/products_detail_page.dart` and automatically injects route into the router.
+
+### **Create Service**
+
+For creating domain services in the domain layer:
+
+```bash
+dart tools/generator.dart service products analytics
+```
+
+Creates: `lib/features/products/domain/services/analytics_service.dart` with abstract interface and implementation.
 
 ---
 
@@ -249,6 +270,16 @@ dart tools/generator.dart cubit products product_filter
 
 # BLoC for complex flow
 dart tools/generator.dart bloc checkout payment
+
+# Create pages for features
+dart tools/generator.dart page products list
+dart tools/generator.dart page products detail
+dart tools/generator.dart page cart view
+dart tools/generator.dart page checkout form
+
+# Create domain services
+dart tools/generator.dart service products analytics
+dart tools/generator.dart service cart discount
 ```
 
 ### **Example 3: Social Media App**
@@ -536,6 +567,12 @@ dart tools/generator.dart cubit <feature> <cubit_name>
 
 # Create bloc (complex flow)
 dart tools/generator.dart bloc <feature> <bloc_name>
+
+# Create page in feature
+dart tools/generator.dart page <feature> <page_name>
+
+# Create service in feature domain layer
+dart tools/generator.dart service <feature> <service_name>
 
 # Create shared widget
 dart tools/generator.dart widget <widget_name>

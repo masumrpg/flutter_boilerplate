@@ -24,9 +24,9 @@ abstract class ${serviceClass}Service {
 }
 
 class ${serviceClass}ServiceImpl implements ${serviceClass}Service {
-  @override
   // Implement your service methods here
   // Example:
+  // @override
   // Future<bool> doSomething() async {
   //   // Service implementation
   //   return true;
