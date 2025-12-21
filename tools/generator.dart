@@ -2,7 +2,9 @@
 
 import 'dart:io';
 
-import 'parts/createNetworkFiles.dart';
+import 'parts/create_network_files.dart';
+import 'parts/create_page.dart';
+import 'parts/create_service.dart';
 import 'parts/create_analysis_options_file.dart';
 import 'parts/create_app_file.dart';
 import 'parts/create_bloc.dart';
@@ -75,6 +77,22 @@ void main(List<String> arguments) {
       }
       createSharedWidget(arguments[1]);
       break;
+    case 'page':
+      if (arguments.length < 3) {
+        print('❌ Error: Feature and page name required');
+        print('Usage: dart generator.dart page <feature_name> <page_name>');
+        exit(1);
+      }
+      createPage(arguments[1], arguments[2]);
+      break;
+    case 'service':
+      if (arguments.length < 3) {
+        print('❌ Error: Feature and service name required');
+        print('Usage: dart generator.dart service <feature_name> <service_name>');
+        exit(1);
+      }
+      createService(arguments[1], arguments[2]);
+      break;
     default:
       print('❌ Unknown command: $command');
       printUsage();
@@ -90,6 +108,8 @@ Commands:
   cubit <feature> <cubit_name>     Create cubit in feature
   bloc <feature> <bloc_name>       Create bloc in feature
   widget <widget_name>             Create shared widget
+  page <feature> <page_name>       Create page in feature
+  service <feature> <service_name> Create service in feature
 
 Examples:
   # Inject structure (default command)
@@ -102,6 +122,8 @@ Examples:
   dart tools/generator.dart cubit home counter
   dart tools/generator.dart bloc auth login
   dart tools/generator.dart widget custom_button
+  dart tools/generator.dart page products detail
+  dart tools/generator.dart service products analytics
 ''');
 }
 

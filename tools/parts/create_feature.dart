@@ -337,16 +337,19 @@ class ${featureClass}Card extends StatelessWidget {
 
   print('✅ Feature "$feature" created successfully!');
 
-  // Inject into router
+  // Inject route name only (the path constant)
   injectRouteName(feature);
-  injectRoute(feature, featureClass);
 
+  // Only inject route if sample page was created (for the home feature)
   if (withSample) {
+    injectRoute(feature, featureClass);
     print('   📄 Sample files included: page, cubit, widgets');
   }
+
   print('');
   print('Next steps:');
   print('  • Update repository implementation');
   print('  • Create BLoC/Cubit: dart generator.dart bloc $feature ${feature}_name');
+  print('  • Create Page: dart generator.dart page $feature $feature');
   print('  • Check lib/routes/app_router.dart for the new route');
 }
