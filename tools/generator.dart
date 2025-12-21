@@ -187,15 +187,25 @@ void _generateStructure(String projectName) {
     print('ℹ️  Skipped: pubspec.yaml (already exists)');
     print('   Add these dependencies manually:');
     print('   - flutter_bloc: ^8.1.6');
+    print('   - equatable: ^2.0.5');
     print('   - go_router: ^14.6.2');
     print('   - dio: ^5.7.0');
     print('   - get_it: ^8.0.2');
+    print('   - fpdart: ^1.1.0');
   }
 
   if (!File('analysis_options.yaml').existsSync()) {
     createAnalysisOptionsFile();
   } else {
     print('ℹ️  Skipped: analysis_options.yaml (already exists)');
+  }
+
+  // Remove default widget test as it doesn't match the new structure
+  if (File('test/widget_test.dart').existsSync()) {
+    File('test/widget_test.dart').deleteSync();
+    print(
+      '🗑️  Removed: test/widget_test.dart (incompatible with new structure)',
+    );
   }
 
   // Create sample feature as example
@@ -1226,7 +1236,7 @@ void createFeature(String featureName, {bool withSample = false}) {
   final repoContent = '''
 // ignore_for_file: type=lint
 import 'package:fpdart/fpdart.dart';
-import '../../../core/error/failure.dart';
+import '../../../../core/error/failure.dart';
 import '../entities/${feature}_entity.dart';
 
 abstract class ${featureClass}Repository {
@@ -1242,8 +1252,8 @@ abstract class ${featureClass}Repository {
   final repoImplContent = '''
 // ignore_for_file: type=lint
 import 'package:fpdart/fpdart.dart';
-import '../../../core/error/failure.dart';
-import '../../../core/error/exception.dart';
+import '../../../../core/error/failure.dart';
+import '../../../../core/error/exception.dart';
 import '../../domain/repositories/${feature}_repository.dart';
 import '../../domain/entities/${feature}_entity.dart';
 import '../datasources/${feature}_remote_datasource.dart';
@@ -1335,6 +1345,7 @@ import '../models/${feature}_model.dart';
 
 abstract class ${featureClass}RemoteDataSource {
   Future<List<${featureClass}Model>> getItems();
+  Future<${featureClass}Model> getItemById(String id);
 }
 
 class ${featureClass}RemoteDataSourceImpl implements ${featureClass}RemoteDataSource {
@@ -1386,12 +1397,12 @@ class ${featureClass}RemoteDataSourceImpl implements ${featureClass}RemoteDataSo
     // Create sample page
     final pageContent = '''
 // ignore_for_file: type=lint
-import 'package:flutter/flutter.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
+// import 'package:go_router/go_router.dart';
 import '../../cubit/${feature}_list_cubit.dart';
-import '../../../shared/widgets/loading_indicator.dart';
-import '../../../shared/widgets/error_view.dart';
+import '../../../../shared/widgets/loading_indicator.dart';
+import '../../../../shared/widgets/error_view.dart';
 import '../widgets/${feature}_card.dart';
 
 class ${featureClass}Page extends StatelessWidget {
