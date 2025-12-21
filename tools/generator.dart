@@ -132,7 +132,7 @@ void injectIntoExisting() {
   final nameMatch = RegExp(r'name:\s*(\w+)').firstMatch(pubspec);
   final projectName = nameMatch?.group(1) ?? 'app';
 
-  print('📦 Project name: $projectName');
+  print('📦 Project name: your_project_name');
   print('');
 
   _generateStructure(projectName);
@@ -615,6 +615,7 @@ class UnauthorizedException implements Exception {
 void createUtilsFiles() {
   // constants.dart
   final constantsContent = '''
+// ignore_for_file: type=lint
 class AppConstants {
   static const String appName = 'Flutter BLoC App';
   static const String apiBaseUrl = 'https://api.example.com';
@@ -633,6 +634,7 @@ class AppConstants {
 
   // validators.dart
   final validatorsContent = '''
+// ignore_for_file: type=lint
 class Validators {
   static String? email(String? value) {
     if (value == null || value.isEmpty) {
@@ -654,14 +656,14 @@ class Validators {
 
   static String? minLength(String? value, int length, {String? fieldName}) {
     if (value == null || value.length < length) {
-      return '\${fieldName ?? 'Field'} must be at least \$length characters';
+      return '\${fieldName ?? 'Field'} must be at least \${length} characters';
     }
     return null;
   }
 
   static String? maxLength(String? value, int length, {String? fieldName}) {
     if (value != null && value.length > length) {
-      return '\${fieldName ?? 'Field'} must be at most \$length characters';
+      return '\${fieldName ?? 'Field'} must be at most \${length} characters';
     }
     return null;
   }
@@ -701,7 +703,7 @@ class Validators {
       return 'URL is required';
     }
     final urlRegex = RegExp(
-      r'^https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&\\/\\/=]*)\$',
+      r'^https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_+\\.~#?&\\/\\/=]*)\$',
     );
     if (!urlRegex.hasMatch(value)) {
       return 'Enter a valid URL';
@@ -786,9 +788,10 @@ extension ContextExtension on BuildContext {
 void createRouteFiles() {
   // app_router.dart
   final routerContent = '''
+// ignore_for_file: type=lint
 import 'package:go_router/go_router.dart';
 import 'route_names.dart';
-import '../features/home/ui/home_page.dart';
+import '../features/home/ui/pages/home_page.dart';
 
 class AppRouter {
   static final router = GoRouter(
@@ -799,27 +802,6 @@ class AppRouter {
         name: RouteNames.home,
         builder: (context, state) => const HomePage(),
       ),
-
-      // Example: Auth routes
-      // GoRoute(
-      //   path: RouteNames.login,
-      //   name: RouteNames.login,
-      //   builder: (context, state) => const LoginPage(),
-      // ),
-
-      // Example: Nested routes
-      // GoRoute(
-      //   path: RouteNames.profile,
-      //   name: RouteNames.profile,
-      //   builder: (context, state) => const ProfilePage(),
-      //   routes: [
-      //     GoRoute(
-      //       path: 'edit',
-      //       name: RouteNames.profileEdit,
-      //       builder: (context, state) => const ProfileEditPage(),
-      //     ),
-      //   ],
-      // ),
     ],
 
     // Error handling
@@ -828,20 +810,6 @@ class AppRouter {
         child: Text('Page not found: \${state.uri}'),
       ),
     ),
-
-    // Redirect logic (e.g., auth guard)
-    // redirect: (context, state) {
-    //   final isLoggedIn = false; // Check auth state
-    //   final isGoingToLogin = state.matchedLocation == RouteNames.login;
-    //
-    //   if (!isLoggedIn && !isGoingToLogin) {
-    //     return RouteNames.login;
-    //   }
-    //   if (isLoggedIn && isGoingToLogin) {
-    //     return RouteNames.home;
-    //   }
-    //   return null;
-    // },
   );
 }
 ''';
@@ -849,6 +817,7 @@ class AppRouter {
 
   // route_names.dart
   final namesContent = '''
+// ignore_for_file: type=lint
 class RouteNames {
   static const String home = '/';
   static const String login = '/login';
@@ -856,11 +825,6 @@ class RouteNames {
   static const String settings = '/settings';
   static const String profile = '/profile';
   static const String profileEdit = 'edit'; // Relative path for nested routes
-
-  // Add more route names here
-  // Example:
-  // static const String productDetail = '/products/:id';
-  // static const String cart = '/cart';
 }
 ''';
   File('lib/routes/route_names.dart').writeAsStringSync(namesContent);
@@ -871,6 +835,7 @@ class RouteNames {
 void createSharedFiles() {
   // app_bloc_observer.dart
   final observerContent = '''
+// ignore_for_file: type=lint
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AppBlocObserver extends BlocObserver {
@@ -913,6 +878,7 @@ class AppBlocObserver extends BlocObserver {
 
   // app_button.dart
   final buttonContent = '''
+// ignore_for_file: type=lint
 import 'package:flutter/material.dart';
 
 class AppButton extends StatelessWidget {
@@ -998,6 +964,7 @@ class AppButton extends StatelessWidget {
 
   // app_text_field.dart
   final textFieldContent = '''
+// ignore_for_file: type=lint
 import 'package:flutter/material.dart';
 
 class AppTextField extends StatelessWidget {
@@ -1077,6 +1044,7 @@ class AppTextField extends StatelessWidget {
 
   // loading_indicator.dart
   final loadingContent = '''
+// ignore_for_file: type=lint
 import 'package:flutter/material.dart';
 
 class LoadingIndicator extends StatelessWidget {
@@ -1122,6 +1090,7 @@ class LoadingIndicator extends StatelessWidget {
 
   // error_view.dart
   final errorViewContent = '''
+// ignore_for_file: type=lint
 import 'package:flutter/material.dart';
 
 class ErrorView extends StatelessWidget {
@@ -1239,9 +1208,13 @@ void createFeature(String featureName, {bool withSample = false}) {
   final dirs = [
     'lib/features/$feature/cubit',
     'lib/features/$feature/domain/entities',
+    'lib/features/$feature/domain/repositories',
+    'lib/features/$feature/domain/services',
     'lib/features/$feature/data/datasources',
     'lib/features/$feature/data/models',
+    'lib/features/$feature/data/repositories',
     'lib/features/$feature/ui/widgets',
+    'lib/features/$feature/ui/pages',
   ];
 
   for (final dir in dirs) {
@@ -1250,56 +1223,60 @@ void createFeature(String featureName, {bool withSample = false}) {
 
   // Create repository interface
   final repoContent = '''
-// Repository interface for $featureClass feature
-// Define your repository contract here
+// ignore_for_file: type=lint
+import 'package:fpdart/fpdart.dart';
+import '../../../core/error/failure.dart';
+import 'entities/${feature}_entity.dart';
+
 abstract class ${featureClass}Repository {
-  // Example method:
-  // Future<Either<Failure, List<Item>>> getItems();
-  // Future<Either<Failure, Item>> getItemById(String id);
-  // Future<Either<Failure, void>> createItem(Item item);
-  // Future<Either<Failure, void>> updateItem(Item item);
-  // Future<Either<Failure, void>> deleteItem(String id);
+  Future<Either<Failure, List<${featureClass}Entity>>> getItems();
+  // Future<Either<Failure, ${featureClass}Entity>> getItemById(String id);
 }
 ''';
-  File('lib/features/$feature/domain/${feature}_repository.dart').writeAsStringSync(repoContent);
+  File(
+    'lib/features/$feature/domain/repositories/${feature}_repository.dart',
+  ).writeAsStringSync(repoContent);
 
   // Create repository implementation
   final repoImplContent = '''
-import '../domain/${feature}_repository.dart';
-// import 'datasources/${feature}_remote_datasource.dart';
-// import '../../../core/error/exception.dart';
-// import '../../../core/error/failure.dart';
+// ignore_for_file: type=lint
+import 'package:fpdart/fpdart.dart';
+import '../../../core/error/failure.dart';
+import '../../../core/error/exception.dart';
+import '../../domain/repositories/${feature}_repository.dart';
+import '../../domain/entities/${feature}_entity.dart';
+import '../datasources/${feature}_remote_datasource.dart';
 
 class ${featureClass}RepositoryImpl implements ${featureClass}Repository {
-  // final ${featureClass}RemoteDataSource remoteDataSource;
+  final ${featureClass}RemoteDataSource remoteDataSource;
 
-  // ${featureClass}RepositoryImpl(this.remoteDataSource);
+  ${featureClass}RepositoryImpl(this.remoteDataSource);
 
-  // Example implementation:
-  // @override
-  // Future<Either<Failure, List<Item>>> getItems() async {
-  //   try {
-  //     final items = await remoteDataSource.getItems();
-  //     return Right(items);
-  //   } on ServerException catch (e) {
-  //     return Left(ServerFailure(e.message));
-  //   } on NetworkException catch (e) {
-  //     return Left(NetworkFailure(e.message));
-  //   }
-  // }
+  @override
+  Future<Either<Failure, List<${featureClass}Entity>>> getItems() async {
+    try {
+      final models = await remoteDataSource.getItems();
+      return Right(models.map((e) => e.toEntity()).toList());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }
 ''';
-  File('lib/features/$feature/data/${feature}_repository_impl.dart').writeAsStringSync(repoImplContent);
+  File(
+    'lib/features/$feature/data/repositories/${feature}_repository_impl.dart',
+  ).writeAsStringSync(repoImplContent);
 
   // Create entity example
   final entityContent = '''
+// ignore_for_file: type=lint
 import 'package:equatable/equatable.dart';
 
-// Example entity for $featureClass feature
 class ${featureClass}Entity extends Equatable {
   final String id;
   final String name;
-  // Add more fields as needed
 
   const ${featureClass}Entity({
     required this.id,
@@ -1314,24 +1291,22 @@ class ${featureClass}Entity extends Equatable {
 
   // Create model example
   final modelContent = '''
+// ignore_for_file: type=lint
 import '../../domain/entities/${feature}_entity.dart';
 
-// Data model for API responses
 class ${featureClass}Model extends ${featureClass}Entity {
   const ${featureClass}Model({
     required super.id,
     required super.name,
   });
 
-  // From JSON
   factory ${featureClass}Model.fromJson(Map<String, dynamic> json) {
     return ${featureClass}Model(
-      id: json['id'] as String,
-      name: json['name'] as String,
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
     );
   }
 
-  // To JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -1339,7 +1314,6 @@ class ${featureClass}Model extends ${featureClass}Entity {
     };
   }
 
-  // To Entity
   ${featureClass}Entity toEntity() {
     return ${featureClass}Entity(
       id: id,
@@ -1352,14 +1326,14 @@ class ${featureClass}Model extends ${featureClass}Entity {
 
   // Create datasource example
   final datasourceContent = '''
+// ignore_for_file: type=lint
 import '../../../../core/network/api_client.dart';
+import '../../../../core/error/exception.dart';
 import '../models/${feature}_model.dart';
-// import '../../../../core/error/exception.dart';
+// import 'package:dio/dio.dart'; // Uncomment if needed
 
 abstract class ${featureClass}RemoteDataSource {
   Future<List<${featureClass}Model>> getItems();
-  Future<${featureClass}Model> getItemById(String id);
-  // Add more methods as needed
 }
 
 class ${featureClass}RemoteDataSourceImpl implements ${featureClass}RemoteDataSource {
@@ -1370,9 +1344,17 @@ class ${featureClass}RemoteDataSourceImpl implements ${featureClass}RemoteDataSo
   @override
   Future<List<${featureClass}Model>> getItems() async {
     try {
-      final response = await apiClient.get('/$feature');
-      final List<dynamic> data = response.data as List<dynamic>;
-      return data.map((json) => ${featureClass}Model.fromJson(json as Map<String, dynamic>)).toList();
+      // Example call
+      // final response = await apiClient.get('/$feature');
+      // final List<dynamic> data = response.data as List<dynamic>;
+      // return data.map((json) => \${featureClass}Model.fromJson(json as Map<String, dynamic>)).toList();
+
+      // Mock data
+      await Future.delayed(const Duration(seconds: 1));
+      return [
+        const ${featureClass}Model(id: '1', name: 'Item 1'),
+        const ${featureClass}Model(id: '2', name: 'Item 2'),
+      ];
     } catch (e) {
       throw ServerException('Failed to fetch items: \$e');
     }
@@ -1381,8 +1363,13 @@ class ${featureClass}RemoteDataSourceImpl implements ${featureClass}RemoteDataSo
   @override
   Future<${featureClass}Model> getItemById(String id) async {
     try {
-      final response = await apiClient.get('/$feature/\$id');
-      return ${featureClass}Model.fromJson(response.data as Map<String, dynamic>);
+      // Example call
+      // final response = await apiClient.get('/\$feature/\$id');
+      // return \${featureClass}Model.fromJson(response.data as Map<String, dynamic>);
+
+      // Mock data
+      await Future.delayed(const Duration(milliseconds: 500));
+      return ${featureClass}Model(id: id, name: 'Sample Item \$id');
     } catch (e) {
       throw ServerException('Failed to fetch item: \$e');
     }
@@ -1397,12 +1384,14 @@ class ${featureClass}RemoteDataSourceImpl implements ${featureClass}RemoteDataSo
 
     // Create sample page
     final pageContent = '''
-import 'package:flutter/material.dart';
+// ignore_for_file: type=lint
+import 'package:flutter/flutter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../cubit/${feature}_list_cubit.dart';
-// import '../../../core/di/service_locator.dart';
 import '../../../shared/widgets/loading_indicator.dart';
 import '../../../shared/widgets/error_view.dart';
+import '../ui/widgets/${feature}_card.dart';
 
 class ${featureClass}Page extends StatelessWidget {
   const ${featureClass}Page({super.key});
@@ -1411,11 +1400,22 @@ class ${featureClass}Page extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => ${featureClass}ListCubit()..loadItems(),
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('$featureClass'),
-        ),
-        body: BlocBuilder<${featureClass}ListCubit, ${featureClass}ListState>(
+      child: const ${featureClass}View(),
+    );
+  }
+}
+
+class ${featureClass}View extends StatelessWidget {
+  const ${featureClass}View({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('$featureClass'),
+      ),
+      body: SafeArea(
+        child: BlocBuilder<${featureClass}ListCubit, ${featureClass}ListState>(
           builder: (context, state) {
             if (state is ${featureClass}ListLoading) {
               return const LoadingIndicator(message: 'Loading items...');
@@ -1429,46 +1429,46 @@ class ${featureClass}Page extends StatelessWidget {
             }
 
             if (state is ${featureClass}ListLoaded) {
-              return ListView.builder(
+              if (state.items.isEmpty) {
+                return const Center(child: Text('No items found'));
+              }
+              return ListView.separated(
                 padding: const EdgeInsets.all(16),
                 itemCount: state.items.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final item = state.items[index];
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: ListTile(
-                      title: Text('Item \${item.name}'),
-                      subtitle: Text('ID: \${item.id}'),
-                      trailing: const Icon(Icons.arrow_forward_ios),
-                      onTap: () {
-                        // Navigate to detail page
-                      },
-                    ),
+                  return ${featureClass}Card(
+                    item: item,
+                    onTap: () {
+                      // context.push('/$feature/details/\${item.id}');
+                    },
                   );
                 },
               );
             }
 
-            return const Center(
-              child: Text('No data available'),
-            );
+            return const SizedBox.shrink();
           },
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            // Add new item
-          },
-          child: const Icon(Icons.add),
-        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Action
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
 }
 ''';
-    File('lib/features/$feature/ui/${feature}_page.dart').writeAsStringSync(pageContent);
+    File(
+      'lib/features/$feature/ui/pages/${feature}_page.dart',
+    ).writeAsStringSync(pageContent);
 
     // Create sample widget
     final widgetContent = '''
+// ignore_for_file: type=lint
 import 'package:flutter/material.dart';
 import '../../domain/entities/${feature}_entity.dart';
 
@@ -1486,22 +1486,48 @@ class ${featureClass}Card extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              Text(
-                item.name,
-                style: Theme.of(context).textTheme.titleLarge,
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.article,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                'ID: \${item.id}',
-                style: Theme.of(context).textTheme.bodySmall,
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.name,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'ID: \${item.id}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ],
+                ),
               ),
+              const Icon(Icons.arrow_forward_ios, size: 16),
             ],
           ),
         ),
@@ -1514,6 +1540,11 @@ class ${featureClass}Card extends StatelessWidget {
   }
 
   print('✅ Feature "$feature" created successfully!');
+
+  // Inject into router
+  _injectRouteName(feature);
+  _injectRoute(feature, featureClass);
+
   if (withSample) {
     print('   📄 Sample files included: page, cubit, widgets');
   }
@@ -1521,7 +1552,7 @@ class ${featureClass}Card extends StatelessWidget {
   print('Next steps:');
   print('  • Update repository implementation');
   print('  • Create BLoC/Cubit: dart generator.dart bloc $feature ${feature}_name');
-  print('  • Add route to lib/routes/app_router.dart');
+  print('  • Check lib/routes/app_router.dart for the new route');
 }
 
 void createCubit(String featureName, String cubitName, {bool withSample = false}) {
@@ -1540,6 +1571,7 @@ void createCubit(String featureName, String cubitName, {bool withSample = false}
   if (withSample) {
     // Cubit with sample logic
     final cubitContent = '''
+// ignore_for_file: type=lint
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import '../domain/entities/${feature}_entity.dart';
@@ -1578,6 +1610,7 @@ class ${cubitClass}Cubit extends Cubit<${cubitClass}State> {
 
     // State with sample
     final stateContent = '''
+// ignore_for_file: type=lint
 part of '${cubit}_cubit.dart';
 
 abstract class ${cubitClass}State extends Equatable {
@@ -1613,6 +1646,7 @@ class ${cubitClass}Error extends ${cubitClass}State {
   } else {
     // Basic cubit template
     final cubitContent = '''
+// ignore_for_file: type=lint
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -1631,6 +1665,7 @@ class ${cubitClass}Cubit extends Cubit<${cubitClass}State> {
     File('lib/features/$feature/cubit/${cubit}_cubit.dart').writeAsStringSync(cubitContent);
 
     final stateContent = '''
+// ignore_for_file: type=lint
 part of '${cubit}_cubit.dart';
 
 abstract class ${cubitClass}State extends Equatable {
@@ -1674,6 +1709,7 @@ void createBloc(String featureName, String blocName) {
   Directory('lib/features/$feature/bloc').createSync(recursive: true);
 
   final blocContent = '''
+// ignore_for_file: type=lint
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -1712,6 +1748,7 @@ class ${blocClass}Bloc extends Bloc<${blocClass}Event, ${blocClass}State> {
   File('lib/features/$feature/bloc/${bloc}_bloc.dart').writeAsStringSync(blocContent);
 
   final eventContent = '''
+// ignore_for_file: type=lint
 part of '${bloc}_bloc.dart';
 
 abstract class ${blocClass}Event extends Equatable {
@@ -1730,6 +1767,7 @@ class ${blocClass}DataRequested extends ${blocClass}Event {}
   File('lib/features/$feature/bloc/${bloc}_event.dart').writeAsStringSync(eventContent);
 
   final stateContent = '''
+// ignore_for_file: type=lint
 part of '${bloc}_bloc.dart';
 
 abstract class ${blocClass}State extends Equatable {
@@ -1763,6 +1801,7 @@ void createSharedWidget(String widgetName) {
   final widgetClass = _toPascalCase(widget);
 
   final content = '''
+// ignore_for_file: type=lint
 import 'package:flutter/material.dart';
 
 class $widgetClass extends StatelessWidget {
@@ -1777,8 +1816,101 @@ class $widgetClass extends StatelessWidget {
   }
 }
 ''';
-  File('lib/shared/widgets/${widget}.dart').writeAsStringSync(content);
+  File('lib/shared/widgets/$widget.dart').writeAsStringSync(content);
   print('✅ Widget "$widgetClass" created in shared/widgets');
+}
+
+void _injectRouteName(String feature) {
+  final file = File('lib/routes/route_names.dart');
+  if (!file.existsSync()) return;
+
+  final content = file.readAsStringSync();
+  // Check if variable name already exists to avoid duplicates (e.g. 'home')
+  if (content.contains('String $feature =')) return;
+
+  final routeName = '/$feature';
+  final routeConst = "  static const String $feature = '$routeName';";
+
+  final lines = content.split('\n');
+  final lastConstIndex = lines.lastIndexWhere(
+    (line) => line.trim().startsWith('static const String'),
+  );
+
+  if (lastConstIndex != -1) {
+    lines.insert(lastConstIndex + 1, routeConst);
+    file.writeAsStringSync(lines.join('\n'));
+    print('   ➕ Injected route constant: RouteNames.$feature');
+  }
+}
+
+void _injectRoute(String feature, String featureClass) {
+  final file = File('lib/routes/app_router.dart');
+  if (!file.existsSync()) return;
+
+  var content = file.readAsStringSync();
+
+  // Check if already injected
+  if (content.contains('path: RouteNames.$feature')) return;
+
+  // Import insertion
+  final importStatement =
+      "import '../features/$feature/ui/pages/${feature}_page.dart';";
+  if (!content.contains(importStatement)) {
+    final lastImportIndex = content.lastIndexOf('import ');
+    if (lastImportIndex != -1) {
+      final endOfLastImport = content.indexOf(';', lastImportIndex) + 1;
+      content = content.replaceRange(
+        endOfLastImport,
+        endOfLastImport,
+        '\n$importStatement',
+      );
+    }
+  }
+
+  // Route insertion
+  // Look for the routes list [ ... ]
+  final routesStartIndex = content.indexOf('routes: [');
+  if (routesStartIndex == -1) return;
+
+  final routesEndIndex = _findMatchingBracket(
+    content,
+    routesStartIndex + 'routes: '.length,
+  );
+  if (routesEndIndex == -1) return;
+
+  // Inject before the closing bracket of routes list
+  final routeEntry =
+      '''
+      GoRoute(
+        path: RouteNames.$feature,
+        name: RouteNames.$feature,
+        builder: (context, state) => const ${featureClass}Page(),
+      ),
+''';
+
+  // If we found a GoRoute, we try to find its end and insert after it,
+  // or just insert before the list end if simpler.
+  // Safest is to insert before the last closing bracket of the list.
+
+  // Finding the last ']' of the list is tricky with nested routes.
+  // Let's use string manipulation to insert before the list's closing bracket.
+  // The _findMatchingBracket gives us the index of ']', so we insert before it.
+
+  content = content.replaceRange(routesEndIndex, routesEndIndex, routeEntry);
+
+  file.writeAsStringSync(content);
+  print('   ➕ Injected route configuration for $feature');
+}
+
+int _findMatchingBracket(String text, int openIndex) {
+  int closeIndex = openIndex;
+  int counter = 1;
+  while (counter > 0 && closeIndex < text.length - 1) {
+    closeIndex++;
+    if (text[closeIndex] == '[') counter++;
+    if (text[closeIndex] == ']') counter--;
+  }
+  return counter == 0 ? closeIndex : -1;
 }
 
 String _capitalize(String s) => s[0].toUpperCase() + s.substring(1);
