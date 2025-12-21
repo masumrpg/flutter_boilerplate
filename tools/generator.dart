@@ -789,6 +789,7 @@ void createRouteFiles() {
   // app_router.dart
   final routerContent = '''
 // ignore_for_file: type=lint
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'route_names.dart';
 import '../features/home/ui/pages/home_page.dart';
@@ -1226,7 +1227,7 @@ void createFeature(String featureName, {bool withSample = false}) {
 // ignore_for_file: type=lint
 import 'package:fpdart/fpdart.dart';
 import '../../../core/error/failure.dart';
-import 'entities/${feature}_entity.dart';
+import '../entities/${feature}_entity.dart';
 
 abstract class ${featureClass}Repository {
   Future<Either<Failure, List<${featureClass}Entity>>> getItems();
@@ -1388,10 +1389,10 @@ class ${featureClass}RemoteDataSourceImpl implements ${featureClass}RemoteDataSo
 import 'package:flutter/flutter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../cubit/${feature}_list_cubit.dart';
+import '../../cubit/${feature}_list_cubit.dart';
 import '../../../shared/widgets/loading_indicator.dart';
 import '../../../shared/widgets/error_view.dart';
-import '../ui/widgets/${feature}_card.dart';
+import '../widgets/${feature}_card.dart';
 
 class ${featureClass}Page extends StatelessWidget {
   const ${featureClass}Page({super.key});
