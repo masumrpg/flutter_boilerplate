@@ -6,24 +6,24 @@ void main(List<String> arguments) {
   print('🚀 Flutter BLoC Scaffold Generator');
   print('=' * 50);
 
+  // Default to inject if no arguments provided
   if (arguments.isEmpty) {
-    printUsage();
-    exit(1);
+    print('💉 No command specified, running inject...');
+    print('');
+    injectIntoExisting();
+    return;
   }
 
   final command = arguments[0];
 
   switch (command) {
     case 'init':
-      if (arguments.length < 2) {
-        print('❌ Error: Project name required');
-        print('Usage: dart generator.dart init <project_name>');
-        exit(1);
-      }
-      initProject(arguments[1]);
+      print('⚠️  Warning: "init" is deprecated. Use "inject" instead.');
+      print('   Running inject...');
+      print('');
+      injectIntoExisting();
       break;
     case 'inject':
-      print('💉 Injecting structure into current project...');
       injectIntoExisting();
       break;
     case 'feature':
@@ -68,26 +68,23 @@ void main(List<String> arguments) {
 void printUsage() {
   print('''
 Commands:
-  init <project_name>              Create full project structure (new folder)
-  inject                           Inject structure into CURRENT project
+  inject                           Inject structure into current project (DEFAULT)
   feature <feature_name>           Create new feature module with samples
   cubit <feature> <cubit_name>     Create cubit in feature
   bloc <feature> <bloc_name>       Create bloc in feature
   widget <widget_name>             Create shared widget
 
 Examples:
-  # Create new project
-  dart generator.dart init my_app
-
-  # Inject into existing project (run inside project folder)
-  cd my_existing_project
-  dart generator.dart inject
+  # Inject structure (default command)
+  dart tools/generator.dart inject
+  # or simply
+  dart tools/generator.dart
 
   # Create features with boilerplate samples
-  dart generator.dart feature products
-  dart generator.dart cubit home counter
-  dart generator.dart bloc auth login
-  dart generator.dart widget custom_button
+  dart tools/generator.dart feature products
+  dart tools/generator.dart cubit home counter
+  dart tools/generator.dart bloc auth login
+  dart tools/generator.dart widget custom_button
 ''');
 }
 
@@ -122,23 +119,21 @@ void injectIntoExisting() {
   if (!File('pubspec.yaml').existsSync()) {
     print('❌ Error: Not in a Flutter project directory!');
     print('   Run this command inside your Flutter project folder.');
+    print('   Make sure pubspec.yaml exists in the current directory.');
     exit(1);
   }
 
   print('📁 Current directory: ${Directory.current.path}');
   print('⚠️  This will create folders and files in lib/');
-  stdout.write('Continue? (y/n): ');
-  final answer = stdin.readLineSync();
-
-  if (answer?.toLowerCase() != 'y') {
-    print('❌ Cancelled');
-    exit(0);
-  }
+  print('');
 
   // Read project name from pubspec.yaml
   final pubspec = File('pubspec.yaml').readAsStringSync();
   final nameMatch = RegExp(r'name:\s*(\w+)').firstMatch(pubspec);
   final projectName = nameMatch?.group(1) ?? 'app';
+
+  print('📦 Project name: $projectName');
+  print('');
 
   _generateStructure(projectName);
 
@@ -146,9 +141,11 @@ void injectIntoExisting() {
   print('✨ Structure injected successfully!');
   print('');
   print('📝 Next steps:');
-  print('1. flutter pub get');
-  print('2. dart generator.dart feature auth');
-  print('3. Check lib/ folder for samples!');
+  print('1. Add dependencies to pubspec.yaml (see above)');
+  print('2. flutter pub get');
+  print('3. dart tools/generator.dart feature <your_feature>');
+  print('4. Check lib/features/home/ for sample code!');
+  print('5. flutter run');
 }
 
 void _generateStructure(String projectName) {
