@@ -15,6 +15,7 @@ A powerful CLI tool to scaffold Flutter projects with **BLoC pattern**, **Clean 
 - ✅ **Dio** with interceptors for networking
 - ✅ **Error handling** (Failure/Exception pattern)
 - ✅ **Very Good Analysis** linting rules
+- ✅ **fpdart** for functional error handling (Either result)
 
 ### **Pre-built Components**
 - 🎨 **Material 3** theming system
@@ -97,20 +98,30 @@ lib/features/products/
 │   ├── products_list_cubit.dart      # Sample cubit with logic
 │   └── products_list_state.dart      # States (Loading/Loaded/Error)
 ├── domain/
-│   ├── products_repository.dart      # Repository interface
-│   └── entities/
-│       └── products_entity.dart      # Domain entity
+│   ├── entities/
+│   │   └── products_entity.dart      # Domain entity
+│   ├── repositories/
+│   │   └── products_repository.dart  # Repository interface
+│   └── services/
+│       └── products_service.dart     # (Optional) Service logic
 ├── data/
-│   ├── products_repository_impl.dart # Repository implementation
 │   ├── datasources/
 │   │   └── products_remote_datasource.dart  # API calls
-│   └── models/
-│       └── products_model.dart       # Data model with JSON
+│   ├── models/
+│   │   └── products_model.dart       # Data model with JSON
+│   └── repositories/
+│       └── products_repository_impl.dart # Repository implementation
 └── ui/
-    ├── products_page.dart            # Full page with BlocProvider
+    ├── pages/
+    │   └── products_page.dart        # Full page with BlocProvider
     └── widgets/
         └── products_card.dart        # Custom widget
 ```
+
+**New Automations:**
+- ✅ **Auto-Routing**: Automatically injects route into `lib/routes/app_router.dart`.
+- ✅ **Route Constants**: Adds constant to `lib/routes/route_names.dart`.
+- ✅ **Lint Free**: Generated files include `// ignore_for_file: type=lint`.```
 
 ### **Create Cubit (Simple State)**
 
@@ -181,8 +192,16 @@ lib/
 │   ├── home/                    # ✅ Sample feature
 │   │   ├── cubit/
 │   │   ├── domain/
+│   │   │   ├── entities/
+│   │   │   ├── repositories/
+│   │   │   └── services/
 │   │   ├── data/
+│   │   │   ├── datasources/
+│   │   │   ├── models/
+│   │   │   └── repositories/
 │   │   └── ui/
+│   │       ├── pages/
+│   │       └── widgets/
 │   ├── auth/
 │   └── products/
 │
@@ -254,12 +273,12 @@ Edit `lib/features/products/data/products_repository_impl.dart`:
 
 ```dart
 @override
-Future<List<ProductEntity>> getProducts() async {
+Future<Either<Failure, List<ProductEntity>>> getProducts() async {
   try {
-    final response = await remoteDataSource.getProducts();
-    return response.map((model) => model.toEntity()).toList();
+    final models = await remoteDataSource.getProducts();
+    return Right(models.map((model) => model.toEntity()).toList());
   } on ServerException catch (e) {
-    throw ServerFailure(e.message);
+    return Left(ServerFailure(e.message));
   }
 }
 ```
@@ -290,6 +309,7 @@ Future<void> setupServiceLocator() async {
 Edit `lib/routes/app_router.dart`:
 
 ```dart
+// 🚀 Auto-injected by generator!
 GoRoute(
   path: RouteNames.products,
   name: RouteNames.products,
@@ -300,7 +320,9 @@ GoRoute(
 Edit `lib/routes/route_names.dart`:
 
 ```dart
+// 🚀 Auto-injected by generator!
 static const String products = '/products';
+
 ```
 
 ### **4. Use in UI**
