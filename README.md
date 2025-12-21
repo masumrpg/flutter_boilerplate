@@ -121,7 +121,6 @@ lib/features/products/
 **New Automations:**
 - ✅ **Auto-Routing**: Automatically injects route into `lib/routes/app_router.dart`.
 - ✅ **Route Constants**: Adds constant to `lib/routes/route_names.dart`.
-- ✅ **Lint Free**: Generated files include `// ignore_for_file: type=lint`.```
 
 ### **Create Cubit (Simple State)**
 
