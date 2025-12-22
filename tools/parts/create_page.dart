@@ -5,7 +5,8 @@ import '../utils/utils.dart';
 void createPage(String featureName, String pageName) {
   final feature = featureName.toLowerCase();
   final page = pageName.toLowerCase();
-  final pageClass = toPascalCase(page);
+  // Use feature + page name for class name to follow naming convention
+  final pageClass = page == feature ? '${toPascalCase(feature)}Page' : '${toPascalCase(feature)}${toPascalCase(page)}Page';
 
   if (!Directory('lib/features/$feature').existsSync()) {
     print('❌ Feature "$feature" does not exist. Create it first with:');
@@ -19,25 +20,27 @@ void createPage(String featureName, String pageName) {
   final pageContent = '''
 import 'package:flutter/material.dart';
 
-class ${pageClass}Page extends StatelessWidget {
-  const ${pageClass}Page({super.key});
+class $pageClass extends StatelessWidget {
+  const $pageClass({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('$pageClass'),
+        title: const Text('${page == feature ? toPascalCase(feature) : '${toPascalCase(feature)} ${toPascalCase(page)}'}'),
       ),
       body: const SafeArea(
         child: Center(
-          child: Text('$pageClass Page'),
+          child: Text('${page == feature ? '${toPascalCase(feature)} Page' : '${toPascalCase(feature)} ${toPascalCase(page)} Page'}'),
         ),
       ),
     );
   }
 }
 ''';
-  File('lib/features/$feature/ui/pages/${page}_page.dart').writeAsStringSync(pageContent);
+  // Use feature_page naming convention for consistency
+  final fileName = page == feature ? '${feature}_page' : '${feature}_${page}_page';
+  File('lib/features/$feature/ui/pages/$fileName.dart').writeAsStringSync(pageContent);
 
   print('✅ Page "$page" created in feature "$feature"');
 
@@ -54,8 +57,9 @@ void injectRouteForPage(String feature, String page, String pageClass) {
   // Check if already injected
   if (content.contains('const ${pageClass}Page()')) return;
 
-  // Import insertion
-  final importStatement = 'import \'../features/$feature/ui/pages/${page}_page.dart\';';
+  // Import insertion - use correct file name
+  final fileName = page == feature ? '${feature}_page' : '${feature}_${page}_page';
+  final importStatement = 'import \'../features/$feature/ui/pages/$fileName.dart\';';
   if (!content.contains(importStatement)) {
     final lastImportIndex = content.lastIndexOf('import ');
     if (lastImportIndex != -1) {
@@ -87,7 +91,7 @@ void injectRouteForPage(String feature, String page, String pageClass) {
       GoRoute(
         path: '$routePath',
         name: '${page == feature ? feature : '${feature}_$page'}',
-        builder: (context, state) => const ${pageClass}Page(),
+        builder: (context, state) => const $pageClass(),
       ),
 ''';
 

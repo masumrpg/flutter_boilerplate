@@ -1,21 +1,18 @@
 import 'dart:io';
 
 import '../utils/utils.dart';
-import 'create_cubit.dart';
 
 void createFeature(String featureName, {bool withSample = false}) {
   final feature = featureName.toLowerCase();
   final featureClass = toPascalCase(feature);
 
   final dirs = [
-    'lib/features/$feature/cubit',
     'lib/features/$feature/domain/entities',
     'lib/features/$feature/domain/repositories',
     'lib/features/$feature/domain/services',
     'lib/features/$feature/data/datasources',
     'lib/features/$feature/data/models',
     'lib/features/$feature/data/repositories',
-    'lib/features/$feature/ui/widgets',
     'lib/features/$feature/ui/pages',
   ];
 
@@ -177,33 +174,12 @@ class ${featureClass}RemoteDataSourceImpl implements ${featureClass}RemoteDataSo
   File('lib/features/$feature/data/datasources/${feature}_remote_datasource.dart').writeAsStringSync(datasourceContent);
 
   if (withSample) {
-    // Create sample cubit
-    createCubit(feature, '${feature}_list', withSample: true);
-
     // Create sample page
     final pageContent = '''
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:go_router/go_router.dart';
-import '../../cubit/${feature}_list_cubit.dart';
-import '../../../../shared/widgets/loading_indicator.dart';
-import '../../../../shared/widgets/error_view.dart';
-import '../widgets/${feature}_card.dart';
 
 class ${featureClass}Page extends StatelessWidget {
   const ${featureClass}Page({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => ${featureClass}ListCubit()..loadItems(),
-      child: const ${featureClass}View(),
-    );
-  }
-}
-
-class ${featureClass}View extends StatelessWidget {
-  const ${featureClass}View({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -211,49 +187,10 @@ class ${featureClass}View extends StatelessWidget {
       appBar: AppBar(
         title: const Text('$featureClass'),
       ),
-      body: SafeArea(
-        child: BlocBuilder<${featureClass}ListCubit, ${featureClass}ListState>(
-          builder: (context, state) {
-            if (state is ${featureClass}ListLoading) {
-              return const LoadingIndicator(message: 'Loading items...');
-            }
-
-            if (state is ${featureClass}ListError) {
-              return ErrorView(
-                message: state.message,
-                onRetry: () => context.read<${featureClass}ListCubit>().loadItems(),
-              );
-            }
-
-            if (state is ${featureClass}ListLoaded) {
-              if (state.items.isEmpty) {
-                return const Center(child: Text('No items found'));
-              }
-              return ListView.separated(
-                padding: const EdgeInsets.all(16),
-                itemCount: state.items.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  final item = state.items[index];
-                  return ${featureClass}Card(
-                    item: item,
-                    onTap: () {
-                      // context.push('/$feature/details/\${item.id}');
-                    },
-                  );
-                },
-              );
-            }
-
-            return const SizedBox.shrink();
-          },
+      body: const SafeArea(
+        child: Center(
+          child: Text('${featureClass} Page'),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Action
-        },
-        child: const Icon(Icons.add),
       ),
     );
   }
@@ -262,77 +199,6 @@ class ${featureClass}View extends StatelessWidget {
     File(
       'lib/features/$feature/ui/pages/${feature}_page.dart',
     ).writeAsStringSync(pageContent);
-
-    // Create sample widget
-    final widgetContent = '''
-import 'package:flutter/material.dart';
-import '../../domain/entities/${feature}_entity.dart';
-
-class ${featureClass}Card extends StatelessWidget {
-  final ${featureClass}Entity item;
-  final VoidCallback? onTap;
-
-  const ${featureClass}Card({
-    required this.item,
-    this.onTap,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  Icons.article,
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.name,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'ID: \${item.id}',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(Icons.arrow_forward_ios, size: 16),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-''';
-    File('lib/features/$feature/ui/widgets/${feature}_card.dart').writeAsStringSync(widgetContent);
   }
 
   print('✅ Feature "$feature" created successfully!');
@@ -340,10 +206,52 @@ class ${featureClass}Card extends StatelessWidget {
   // Inject route name only (the path constant)
   injectRouteName(feature);
 
-  // Only inject route if sample page was created (for the home feature)
-  if (withSample) {
-    injectRoute(feature, featureClass);
-    print('   📄 Sample files included: page, cubit, widgets');
+  // Only inject route if sample page was created and it's not the home feature (which is already in the initial router)
+  if (withSample && feature != 'home') {
+    // Import insertion for sample page
+    final file = File('lib/routes/app_router.dart');
+    if (file.existsSync()) {
+      var content = file.readAsStringSync();
+
+      // Import insertion
+      final importStatement = "import '../features/$feature/ui/pages/${feature}_page.dart';";
+      if (!content.contains(importStatement)) {
+        final lastImportIndex = content.lastIndexOf('import ');
+        if (lastImportIndex != -1) {
+          final endOfLastImport = content.indexOf(';', lastImportIndex) + 1;
+          content = content.replaceRange(
+            endOfLastImport,
+            endOfLastImport,
+            '\n$importStatement',
+          );
+        }
+      }
+
+      // Route insertion
+      final routesStartIndex = content.indexOf('routes: [');
+      if (routesStartIndex != -1) {
+        final routesEndIndex = findMatchingBracket(
+          content,
+          routesStartIndex + 'routes: '.length,
+        );
+        if (routesEndIndex != -1) {
+          final routeEntry = '''
+      GoRoute(
+        path: RouteNames.$feature,
+        name: RouteNames.$feature,
+        builder: (context, state) => const ${featureClass}Page(),
+      ),
+''';
+
+          content = content.replaceRange(routesEndIndex, routesEndIndex, routeEntry);
+          file.writeAsStringSync(content);
+        }
+      }
+    }
+    print('   📄 Sample files included: page');
+  } else if (withSample) {
+    // For home feature, just print the message since route already exists
+    print('   📄 Sample files included: page');
   }
 
   print('');
