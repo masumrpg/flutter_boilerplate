@@ -58,7 +58,7 @@ void injectRouteForPage(String feature, String page, String pageClass) {
     final routeNamesContent = routeNamesFile.readAsStringSync();
 
     // Generate route name constant in camelCase
-    final routeNameConstant = toCamelCase(page == feature ? feature : '${feature}_${page}');
+    final routeNameConstant = toCamelCase(page == feature ? feature : '${feature}_$page');
     final routePath = page == feature ? '/$feature' : '/$feature/$page';
     final routeNameEntry = '  static const String $routeNameConstant = \'$routePath\';';
 

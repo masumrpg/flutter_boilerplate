@@ -189,7 +189,7 @@ class ${featureClass}Page extends StatelessWidget {
       ),
       body: const SafeArea(
         child: Center(
-          child: Text('${featureClass} Page'),
+          child: Text('$featureClass Page'),
         ),
       ),
     );
