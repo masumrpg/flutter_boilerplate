@@ -14,6 +14,7 @@ void createFeature(String featureName, {bool withSample = false}) {
     'lib/features/$feature/data/models',
     'lib/features/$feature/data/repositories',
     'lib/features/$feature/ui/pages',
+    'lib/features/$feature/ui/widgets',
   ];
 
   for (final dir in dirs) {
@@ -173,9 +174,8 @@ class ${featureClass}RemoteDataSourceImpl implements ${featureClass}RemoteDataSo
 ''';
   File('lib/features/$feature/data/datasources/${feature}_remote_datasource.dart').writeAsStringSync(datasourceContent);
 
-  if (withSample) {
-    // Create sample page
-    final pageContent = '''
+  // Always create a basic page when feature is generated
+  final pageContent = '''
 import 'package:flutter/material.dart';
 
 class ${featureClass}Page extends StatelessWidget {
@@ -196,19 +196,18 @@ class ${featureClass}Page extends StatelessWidget {
   }
 }
 ''';
-    File(
-      'lib/features/$feature/ui/pages/${feature}_page.dart',
-    ).writeAsStringSync(pageContent);
-  }
+  File(
+    'lib/features/$feature/ui/pages/${feature}_page.dart',
+  ).writeAsStringSync(pageContent);
 
   print('✅ Feature "$feature" created successfully!');
 
   // Inject route name only (the path constant)
   injectRouteName(feature);
 
-  // Only inject route if sample page was created and it's not the home feature (which is already in the initial router)
-  if (withSample && feature != 'home') {
-    // Import insertion for sample page
+  // Inject route for the created page if it's not the home feature (which is already in the initial router)
+  if (feature != 'home') {
+    // Import insertion for the page
     final file = File('lib/routes/app_router.dart');
     if (file.existsSync()) {
       var content = file.readAsStringSync();
@@ -248,9 +247,9 @@ class ${featureClass}Page extends StatelessWidget {
         }
       }
     }
-    print('   📄 Sample files included: page');
-  } else if (withSample) {
-    // For home feature, just print the message since route already exists
+  }
+
+  if (withSample) {
     print('   📄 Sample files included: page');
   }
 
@@ -258,6 +257,6 @@ class ${featureClass}Page extends StatelessWidget {
   print('Next steps:');
   print('  • Update repository implementation');
   print('  • Create BLoC/Cubit: dart generator.dart bloc $feature ${feature}_name');
-  print('  • Create Page: dart generator.dart page $feature $feature');
+  print('  • Add widgets to: lib/features/$feature/ui/widgets');
   print('  • Check lib/routes/app_router.dart for the new route');
 }
