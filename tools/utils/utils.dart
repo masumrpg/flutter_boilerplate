@@ -98,3 +98,19 @@ String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
 String toPascalCase(String s) {
   return s.split('_').map((word) => capitalize(word)).join();
 }
+
+String toCamelCase(String input) {
+  if (input.contains('_')) {
+    final parts = input.split('_');
+    final result = <String>[];
+    for (int i = 0; i < parts.length; i++) {
+      if (i == 0) {
+        result.add(parts[i]);
+      } else {
+        result.add(parts[i][0].toUpperCase() + parts[i].substring(1));
+      }
+    }
+    return result.join();
+  }
+  return input;
+}

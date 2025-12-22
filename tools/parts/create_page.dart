@@ -49,10 +49,35 @@ class $pageClass extends StatelessWidget {
 }
 
 void injectRouteForPage(String feature, String page, String pageClass) {
-  final file = File('lib/routes/app_router.dart');
-  if (!file.existsSync()) return;
+  final routerFile = File('lib/routes/app_router.dart');
+  if (!routerFile.existsSync()) return;
 
-  var content = file.readAsStringSync();
+  // First, add route name to route_names.dart
+  final routeNamesFile = File('lib/routes/route_names.dart');
+  if (routeNamesFile.existsSync()) {
+    final routeNamesContent = routeNamesFile.readAsStringSync();
+
+    // Generate route name constant in camelCase
+    final routeNameConstant = toCamelCase(page == feature ? feature : '${feature}_${page}');
+    final routePath = page == feature ? '/$feature' : '/$feature/$page';
+    final routeNameEntry = '  static const String $routeNameConstant = \'$routePath\';';
+
+    // Check if route name already exists
+    if (!routeNamesContent.contains('String $routeNameConstant =')) {
+      final lines = routeNamesContent.split('\n');
+      final lastConstIndex = lines.lastIndexWhere(
+        (line) => line.trim().startsWith('static const String'),
+      );
+
+      if (lastConstIndex != -1) {
+        lines.insert(lastConstIndex + 1, routeNameEntry);
+        routeNamesFile.writeAsStringSync(lines.join('\n'));
+        print('   ➕ Injected route constant: RouteNames.$routeNameConstant');
+      }
+    }
+  }
+
+  var content = routerFile.readAsStringSync();
 
   // Check if already injected
   if (content.contains('const ${pageClass}Page()')) return;
@@ -83,20 +108,20 @@ void injectRouteForPage(String feature, String page, String pageClass) {
   );
   if (routesEndIndex == -1) return;
 
-  // Generate route path
-  final routePath = page == feature ? '/$feature' : '/$feature/$page';
+  // Generate route name constant in camelCase
+  final routeNameConstant = toCamelCase(page == feature ? feature : '${feature}_$page');
 
-  // Create the route entry
+  // Create the route entry using the constant
   final routeEntry = '''
       GoRoute(
-        path: '$routePath',
-        name: '${page == feature ? feature : '${feature}_$page'}',
+        path: RouteNames.$routeNameConstant,
+        name: RouteNames.$routeNameConstant,
         builder: (context, state) => const $pageClass(),
       ),
 ''';
 
   content = content.replaceRange(routesEndIndex, routesEndIndex, routeEntry);
 
-  file.writeAsStringSync(content);
+  routerFile.writeAsStringSync(content);
   print('   ➕ Injected route configuration for $feature/$page');
 }
