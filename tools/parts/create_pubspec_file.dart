@@ -15,23 +15,24 @@ dependencies:
     sdk: flutter
 
   # State Management
-  flutter_bloc: ^8.1.6
-  equatable: ^2.0.5
+  flutter_bloc: ^9.1.1
+  equatable: ^2.0.7
+  fpdart: ^1.2.0
 
   # Navigation
-  go_router: ^14.6.2
+  go_router: ^17.0.1
 
   # Network
-  dio: ^5.7.0
+  dio: ^5.9.0
 
   # Dependency Injection
-  get_it: ^8.0.2
+  get_it: ^9.2.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  very_good_analysis: ^6.0.0
-  flutter_lints: ^5.0.0
+  very_good_analysis: ^10.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true

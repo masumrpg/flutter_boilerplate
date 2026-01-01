@@ -225,12 +225,12 @@ void _generateStructure(String projectName) {
   } else {
     print('ℹ️  Skipped: pubspec.yaml (already exists)');
     print('   Add these dependencies manually:');
-    print('   - flutter_bloc: ^8.1.6');
-    print('   - equatable: ^2.0.5');
-    print('   - go_router: ^14.6.2');
-    print('   - dio: ^5.7.0');
-    print('   - get_it: ^8.0.2');
-    print('   - fpdart: ^1.1.0');
+    print('   - flutter_bloc: ^9.1.1');
+    print('   - equatable: ^2.0.7');
+    print('   - go_router: ^17.0.1');
+    print('   - dio: ^5.9.0');
+    print('   - get_it: ^9.2.0');
+    print('   - fpdart: ^1.2.0');
   }
 
   if (!File('analysis_options.yaml').existsSync()) {

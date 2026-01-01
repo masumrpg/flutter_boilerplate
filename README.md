@@ -241,7 +241,62 @@ lib/
 
 ---
 
-## 📖 Examples
+## � Architecture & Flow Diagrams
+
+### **1. Clean Architecture Layers**
+Visualizing how data flows through the application layers.
+
+```mermaid
+graph TD
+    UI[Presentation / UI] --> BLoC[BLoC / Cubit]
+    BLoC --> UseCase[Domain / Use Case]
+    UseCase --> RepoInterface[Domain / Repository Interface]
+    RepoInterface -- implemented by --> RepoImpl[Data / Repository Implementation]
+    RepoImpl --> DataSource[Data / Data Source]
+    DataSource --> API[External API / Local DB]
+```
+
+### **2. Feature Folder Structure**
+Standard structure generated for every new feature.
+
+```mermaid
+graph TD
+    Feature[Feature Name] --> UI[ui]
+    Feature --> Domain[domain]
+    Feature --> Data[data]
+    Feature --> Cubit[cubit / bloc]
+
+    UI --> Pages[pages]
+    UI --> Widgets[widgets]
+
+    Domain --> Entities[entities]
+    Domain --> Repos[repositories]
+    Domain --> Services[services]
+
+    Data --> DS[datasources]
+    Data --> Models[models]
+    Data --> DataRepos[repositories]
+```
+
+### **3. Generator Workflow**
+How the CLI tool scaffolds your project.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant CLI as Generator CLI
+    participant FS as File System
+
+    User->>CLI: dart tools/generator.dart inject
+    CLI->>FS: Create lib/core, lib/features, etc.
+    CLI->>FS: Generate main.dart, app.dart, utils, etc.
+    CLI->>FS: Create Sample Home Feature
+    Note over CLI,FS: Project Synchronized
+```
+
+---
+
+## �📖 Examples
 
 ### **Example 1: Authentication Flow**
 
