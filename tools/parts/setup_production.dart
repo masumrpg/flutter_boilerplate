@@ -443,10 +443,10 @@ void _patchPubspecForL10n() {
   var content = pubspecFile.readAsStringSync();
   if (content.contains('generate: true')) return;
 
-  // Add generate: true under flutter section
+  // Add generate: true under top-level flutter: section (not dependencies.flutter:)
   content = content.replaceFirst(
-    'flutter:\n',
-    'flutter:\n\n  generate: true\n',
+    RegExp(r'^flutter:\s*$', multiLine: true),
+    'flutter:\n  generate: true',
   );
 
   pubspecFile.writeAsStringSync(content);
