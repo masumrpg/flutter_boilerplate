@@ -146,13 +146,12 @@ class _SplashPageState extends State<SplashPage>
                       ),
                     ],
                   ),
-                  child: CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.white.withValues(alpha: 0.2),
-                    child: Icon(
-                      Icons.flutter_dash,
-                      size: 50,
-                      color: Colors.white.withValues(alpha: 0.9),
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/images/app_icon.png',
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
