@@ -20,6 +20,7 @@ import 'parts/create_shared_files.dart';
 import 'parts/create_shared_widget.dart';
 import 'parts/create_theme_files.dart';
 import 'parts/create_utils_files.dart';
+import 'parts/rename_project.dart';
 
 void main(List<String> arguments) {
   print('🚀 Flutter BLoC Scaffold Generator');
@@ -93,6 +94,14 @@ void main(List<String> arguments) {
       }
       createService(arguments[1], arguments[2]);
       break;
+    case 'rename':
+      if (arguments.length < 2) {
+        print('❌ Error: New project name required');
+        print('Usage: dart generator.dart rename <new_name>');
+        exit(1);
+      }
+      renameProject(arguments[1]);
+      break;
     default:
       print('❌ Unknown command: $command');
       printUsage();
@@ -110,6 +119,7 @@ Commands:
   widget <widget_name>             Create shared widget
   page <feature> <page_name>       Create page in feature
   service <feature> <service_name> Create service in feature
+  rename <new_name>                Rename project and package
 
 Examples:
   # Inject structure (default command)
@@ -124,6 +134,7 @@ Examples:
   dart tools/generator.dart widget custom_button
   dart tools/generator.dart page products detail
   dart tools/generator.dart service products analytics
+  dart tools/generator.dart rename my_cool_app
 ''');
 }
 

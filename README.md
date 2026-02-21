@@ -32,7 +32,11 @@ A powerful CLI tool to scaffold Flutter projects with **BLoC pattern**, **Clean 
 
 ```bash
 # In your Flutter project root
+# 1. Inject structure
 dart tools/generator.dart inject
+
+# 2. Rename project (Recommended)
+dart tools/generator.dart rename my_cool_app
 ```
 
 This will:
@@ -177,6 +181,22 @@ dart tools/generator.dart service products analytics
 ```
 
 Creates: `lib/features/products/domain/services/analytics_service.dart` with abstract interface and implementation.
+
+### **Rename Project**
+
+To rename the entire project (package name, imports, platform files):
+
+```bash
+dart tools/generator.dart rename my_new_app
+```
+
+**What it does:**
+- ✅ Updates `pubspec.yaml`
+- ✅ Refactors all Dart `package:` imports
+- ✅ Updates Android `namespace` and `applicationId`
+- ✅ Updates iOS `Bundle Identifier`
+- ✅ Updates Web & Linux platform metadata
+- ✅ Updates references in all `.md` files
 
 ---
 
@@ -631,6 +651,9 @@ dart tools/generator.dart service <feature> <service_name>
 
 # Create shared widget
 dart tools/generator.dart widget <widget_name>
+
+# Rename project and package
+dart tools/generator.dart rename <new_name>
 ```
 
 ---
