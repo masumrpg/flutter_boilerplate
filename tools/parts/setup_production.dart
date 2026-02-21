@@ -254,7 +254,7 @@ class Log {
 // ─── 5. Native Scaffolding ───────────────────────────────────────────────────
 
 void setupNative() {
-  print('📱 Setting up Native Scaffolding (Icons & Splash)...');
+  print('📱 Setting up Native Scaffolding (Launcher Icons)...');
 
   Directory('assets/images').createSync(recursive: true);
 
@@ -270,30 +270,15 @@ void setupNative() {
   #   theme_color: "#ffffff"
 ''');
 
-  File('flutter_native_splash.yaml').writeAsStringSync('''flutter_native_splash:
-  color: "#ffffff"
-  image: assets/images/splash.png
-
-  android_12:
-    image: assets/images/splash.png
-    color: "#ffffff"
-
-  # Dark mode
-  # color_dark: "#121212"
-  # image_dark: assets/images/splash_dark.png
-
-  web: false
-''');
-
   print('  ✅ Created: flutter_launcher_icons.yaml');
-  print('  ✅ Created: flutter_native_splash.yaml');
-  print('  ✅ Created: assets/images/ (place app_icon.png & splash.png here)');
+  print('  ✅ Created: assets/images/ (place app_icon.png here)');
+  print('  ℹ️  Splash screen is handled by SplashPage widget (cross-platform)');
 
   // Patch pubspec.yaml to add assets
   _patchPubspecForAssets();
 
-  print('  ℹ️  Run: flutter pub add --dev flutter_launcher_icons flutter_native_splash');
-  print('  ℹ️  Then: dart run flutter_launcher_icons && dart run flutter_native_splash:create');
+  print('  ℹ️  Run: flutter pub add --dev flutter_launcher_icons');
+  print('  ℹ️  Then: dart run flutter_launcher_icons');
 }
 
 // ─── 6. Responsive Utility ──────────────────────────────────────────────────
@@ -491,12 +476,13 @@ void _printDependencySummary() {
   print('');
   print('  # Dev Dependencies');
   print('  flutter pub add --dev envied_generator build_runner');
-  print('  flutter pub add --dev flutter_launcher_icons flutter_native_splash');
+  print('  flutter pub add --dev flutter_launcher_icons');
   print('');
   print('  # Generate env code');
   print('  dart run build_runner build --delete-conflicting-outputs');
   print('');
-  print('  # Generate native assets (after placing images in assets/images/)');
+  print(
+    '  # Generate launcher icons (after placing app_icon.png in assets/images/)',
+  );
   print('  dart run flutter_launcher_icons');
-  print('  dart run flutter_native_splash:create');
 }

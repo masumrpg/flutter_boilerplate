@@ -22,7 +22,7 @@ A powerful CLI tool to scaffold Flutter projects with **BLoC pattern**, **Clean 
 - 🌍 **Localization** (l10n) with ARB files (EN & ID)
 - 💾 **Local Storage** wrapper for `shared_preferences`
 - 📝 **Logging** with `logger` (replaces `print` in interceptors)
-- 📱 **Native Scaffolding** (launcher icons & splash screen)
+- 📱 **Native Scaffolding** (launcher icons)
 - 📐 **Responsive UI** with `sizer`
 
 ### **Offline-First**
@@ -243,7 +243,7 @@ dart tools/generator.dart setup env        # Environment config (Envied)
 dart tools/generator.dart setup l10n       # Localization (l10n)
 dart tools/generator.dart setup storage    # Local storage (SharedPreferences)
 dart tools/generator.dart setup logger     # Logging system (Logger)
-dart tools/generator.dart setup native     # Launcher icons & splash screen
+dart tools/generator.dart setup native     # Launcher icons
 dart tools/generator.dart setup responsive # Responsive utility (Sizer)
 ```
 
@@ -255,7 +255,7 @@ dart tools/generator.dart setup responsive # Responsive utility (Sizer)
 | **l10n** | `l10n.yaml`, `lib/l10n/*.arb` | `app.dart`, `pubspec.yaml` |
 | **storage** | `lib/core/services/storage_service.dart` | `service_locator.dart` |
 | **logger** | `lib/core/utils/logger_utils.dart` | `interceptors.dart` |
-| **native** | `flutter_launcher_icons.yaml`, `flutter_native_splash.yaml` | `pubspec.yaml` |
+| **native** | `flutter_launcher_icons.yaml` | `pubspec.yaml` |
 | **responsive** | — | `app.dart` (Sizer wrapper) |
 
 **After setup, install dependencies:**
@@ -268,14 +268,13 @@ flutter pub add intl
 
 # Dev Dependencies
 flutter pub add --dev envied_generator build_runner
-flutter pub add --dev flutter_launcher_icons flutter_native_splash
+flutter pub add --dev flutter_launcher_icons
 
 # Generate env code
 dart run build_runner build --delete-conflicting-outputs
 
-# Generate native assets (after placing images in assets/images/)
+# Generate launcher icons (after placing app_icon.png in assets/images/)
 dart run flutter_launcher_icons
-dart run flutter_native_splash:create
 ```
 
 ---
@@ -746,7 +745,7 @@ dart tools/generator.dart setup env          # Environment config
 dart tools/generator.dart setup l10n         # Localization
 dart tools/generator.dart setup storage      # Local storage
 dart tools/generator.dart setup logger       # Logging system
-dart tools/generator.dart setup native       # Icons & splash
+dart tools/generator.dart setup native       # Launcher icons
 dart tools/generator.dart setup responsive   # Responsive UI
 
 # Offline-first feature (Drift + BLoC + sync)

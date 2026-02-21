@@ -3,8 +3,6 @@ import 'dart:io';
 void createRouteFiles() {
   // app_router.dart
   final routerContent = '''
-import 'dart:io' show Platform;
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'route_names.dart';
@@ -12,11 +10,8 @@ import '../features/home/ui/pages/home_page.dart';
 import '../shared/pages/splash_page.dart';
 
 class AppRouter {
-  static final _isDesktop =
-      Platform.isLinux || Platform.isWindows || Platform.isMacOS;
-
   static final router = GoRouter(
-    initialLocation: _isDesktop ? RouteNames.splash : RouteNames.home,
+    initialLocation: RouteNames.splash,
     routes: [
       GoRoute(
         path: RouteNames.splash,
