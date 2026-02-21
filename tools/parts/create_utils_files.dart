@@ -42,14 +42,14 @@ class Validators {
 
   static String? minLength(String? value, int length, {String? fieldName}) {
     if (value == null || value.length < length) {
-      return '\${fieldName ?? 'Field'} must be at least \${length} characters';
+      return '\${fieldName ?? 'Field'} must be at least \$length characters';
     }
     return null;
   }
 
   static String? maxLength(String? value, int length, {String? fieldName}) {
     if (value != null && value.length > length) {
-      return '\${fieldName ?? 'Field'} must be at most \${length} characters';
+      return '\${fieldName ?? 'Field'} must be at most \$length characters';
     }
     return null;
   }

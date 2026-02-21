@@ -29,7 +29,7 @@ class ${cubitClass}Cubit extends Cubit<${cubitClass}State> {
   ${cubitClass}Cubit() : super(${cubitClass}Initial());
 
   Future<void> loadItems() async {
-    emit(${cubitClass}Loading());
+    emit(const ${cubitClass}Loading());
 
     try {
       // Simulate API call
@@ -119,11 +119,17 @@ abstract class ${cubitClass}State extends Equatable {
   List<Object> get props => [];
 }
 
-class ${cubitClass}Initial extends ${cubitClass}State {}
+class ${cubitClass}Initial extends ${cubitClass}State {
+  const ${cubitClass}Initial();
+}
 
-class ${cubitClass}Loading extends ${cubitClass}State {}
+class ${cubitClass}Loading extends ${cubitClass}State {
+  const ${cubitClass}Loading();
+}
 
-class ${cubitClass}Success extends ${cubitClass}State {}
+class ${cubitClass}Success extends ${cubitClass}State {
+  const ${cubitClass}Success();
+}
 
 class ${cubitClass}Error extends ${cubitClass}State {
   final String message;

@@ -33,19 +33,19 @@ class ${blocClass}Bloc extends Bloc<${blocClass}Event, ${blocClass}State> {
     ${blocClass}Started event,
     Emitter<${blocClass}State> emit,
   ) async {
-    emit(${blocClass}Loading());
+    emit(const ${blocClass}Loading());
     // Your initialization logic here
-    emit(${blocClass}Success());
+    emit(const ${blocClass}Success());
   }
 
   Future<void> _onDataRequested(
     ${blocClass}DataRequested event,
     Emitter<${blocClass}State> emit,
   ) async {
-    emit(${blocClass}Loading());
+    emit(const ${blocClass}Loading());
     try {
       // Your data fetching logic here
-      emit(${blocClass}Success());
+      emit(const ${blocClass}Success());
     } catch (e) {
       emit(${blocClass}Error(e.toString()));
     }
@@ -82,11 +82,17 @@ abstract class ${blocClass}State extends Equatable {
   List<Object> get props => [];
 }
 
-class ${blocClass}Initial extends ${blocClass}State {}
+class ${blocClass}Initial extends ${blocClass}State {
+  const ${blocClass}Initial();
+}
 
-class ${blocClass}Loading extends ${blocClass}State {}
+class ${blocClass}Loading extends ${blocClass}State {
+  const ${blocClass}Loading();
+}
 
-class ${blocClass}Success extends ${blocClass}State {}
+class ${blocClass}Success extends ${blocClass}State {
+  const ${blocClass}Success();
+}
 
 class ${blocClass}Error extends ${blocClass}State {
   final String message;
