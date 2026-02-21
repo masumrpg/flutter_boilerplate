@@ -47,6 +47,12 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: ^0.20.2
+  drift: ^2.31.0
+  drift_flutter: ^0.2.8
+  connectivity_plus: ^7.0.0
+  uuid: ^4.5.2
+  path_provider: ^2.1.5
+  path: ^1.9.1
 
 dev_dependencies:
   flutter_test:
@@ -63,6 +69,7 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.4
   flutter_native_splash: ^2.4.7
   very_good_analysis: ^10.2.0
+  drift_dev: ^2.31.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -70,7 +77,6 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
 
-  generate: true
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

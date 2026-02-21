@@ -4,6 +4,7 @@ void createNetworkFiles() {
   // api_client.dart
   final clientContent = '''
 import 'package:dio/dio.dart';
+import '../config/env.dart';
 import 'interceptors.dart';
 
 class ApiClient {
@@ -12,7 +13,7 @@ class ApiClient {
   ApiClient() {
     _dio = Dio(
       BaseOptions(
-        baseUrl: 'https://api.example.com',
+        baseUrl: Env.apiBaseUrl,
         connectTimeout: const Duration(seconds: 30),
         receiveTimeout: const Duration(seconds: 30),
         headers: {

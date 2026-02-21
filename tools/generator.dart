@@ -22,6 +22,7 @@ import 'parts/create_theme_files.dart';
 import 'parts/create_utils_files.dart';
 import 'parts/rename_project.dart';
 import 'parts/setup_production.dart';
+import 'parts/setup_offline.dart';
 
 void main(List<String> arguments) {
   print('🚀 Flutter BLoC Scaffold Generator');
@@ -106,6 +107,14 @@ void main(List<String> arguments) {
     case 'setup':
       setupProduction(feature: arguments.length > 1 ? arguments[1] : null);
       break;
+    case 'offline':
+      if (arguments.length < 2) {
+        print('❌ Error: Feature name required');
+        print('Usage: dart tools/generator.dart offline <feature_name>');
+        exit(1);
+      }
+      setupOffline(arguments[1]);
+      break;
     default:
       print('❌ Unknown command: $command');
       printUsage();
@@ -125,6 +134,7 @@ Commands:
   service <feature> <service_name> Create service in feature
   rename <new_name>                Rename project and package
   setup <feature>                  Setup production features (env, l10n, storage, logger, native, responsive, all)
+  offline <feature_name>           Create offline-first feature with Drift + BLoC + sync
 
 Examples:
   # Inject structure (default command)
@@ -141,6 +151,7 @@ Examples:
   dart tools/generator.dart service products analytics
   dart tools/generator.dart rename my_cool_app
   dart tools/generator.dart setup all
+  dart tools/generator.dart offline notes
 ''');
 }
 

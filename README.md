@@ -25,6 +25,12 @@ A powerful CLI tool to scaffold Flutter projects with **BLoC pattern**, **Clean 
 - 📱 **Native Scaffolding** (launcher icons & splash screen)
 - 📐 **Responsive UI** with `sizer`
 
+### **Offline-First**
+- 🔄 **Drift** (SQLite) for local database
+- 📡 **Connectivity detection** with auto-sync on reconnect
+- ✅ **Sync indicators** per item (synced/pending)
+- 🏗️ **Full BLoC + Repository + Datasource** scaffolding
+
 ### **Pre-built Components**
 - 🎨 **Material 3** theming system
 - 🧩 **Shared widgets**: AppButton, AppTextField, LoadingIndicator, ErrorView
@@ -48,6 +54,9 @@ dart tools/generator.dart rename my_cool_app
 
 # 3. Setup production features
 dart tools/generator.dart setup all
+
+# 4. Create offline-first feature (optional)
+dart tools/generator.dart offline notes
 ```
 
 This will:
@@ -66,10 +75,22 @@ dependencies:
   equatable: ^2.0.5
   go_router: ^14.6.2
   dio: ^5.7.0
-  get_it: ^8.0.2
+  get_it: ^9.2.0
+  fpdart: ^1.2.0
+
+  # Offline-first (if using `offline` command)
+  drift: ^2.31.0
+  drift_flutter: ^0.2.8
+  connectivity_plus: ^7.0.0
+  uuid: ^4.5.2
+  path_provider: ^2.1.5
 
 dev_dependencies:
   very_good_analysis: ^6.0.0
+  build_runner: ^2.11.1
+
+  # Offline-first (if using `offline` command)
+  drift_dev: ^2.31.0
 ```
 
 Then run:
@@ -77,18 +98,18 @@ Then run:
 flutter pub get
 ```
 
-or
+### **3. Generate Code**
+
+If using features that require code generation (Envied, Drift), run:
 
 ```bash
-flutter pub add flutter_bloc
-flutter pub add equatable
-flutter pub add go_router
-flutter pub add dio
-flutter pub add get_it
-flutter pub add very_good_analysis
+dart run build_runner build --delete-conflicting-outputs
 ```
 
-### **3. Run Your App**
+> [!NOTE]
+> This generates `.g.dart` files for Drift tables and Envied environment config. Run this again whenever you modify Drift tables or env config.
+
+### **4. Run Your App**
 
 ```bash
 flutter run
@@ -727,6 +748,9 @@ dart tools/generator.dart setup storage      # Local storage
 dart tools/generator.dart setup logger       # Logging system
 dart tools/generator.dart setup native       # Icons & splash
 dart tools/generator.dart setup responsive   # Responsive UI
+
+# Offline-first feature (Drift + BLoC + sync)
+dart tools/generator.dart offline <feature_name>
 ```
 
 ---
