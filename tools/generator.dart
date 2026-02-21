@@ -21,6 +21,7 @@ import 'parts/create_shared_widget.dart';
 import 'parts/create_theme_files.dart';
 import 'parts/create_utils_files.dart';
 import 'parts/rename_project.dart';
+import 'parts/setup_production.dart';
 
 void main(List<String> arguments) {
   print('🚀 Flutter BLoC Scaffold Generator');
@@ -102,6 +103,9 @@ void main(List<String> arguments) {
       }
       renameProject(arguments[1]);
       break;
+    case 'setup':
+      setupProduction(feature: arguments.length > 1 ? arguments[1] : null);
+      break;
     default:
       print('❌ Unknown command: $command');
       printUsage();
@@ -120,6 +124,7 @@ Commands:
   page <feature> <page_name>       Create page in feature
   service <feature> <service_name> Create service in feature
   rename <new_name>                Rename project and package
+  setup <feature>                  Setup production features (env, l10n, storage, logger, native, responsive, all)
 
 Examples:
   # Inject structure (default command)
@@ -135,6 +140,7 @@ Examples:
   dart tools/generator.dart page products detail
   dart tools/generator.dart service products analytics
   dart tools/generator.dart rename my_cool_app
+  dart tools/generator.dart setup all
 ''');
 }
 

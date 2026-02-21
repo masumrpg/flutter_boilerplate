@@ -1,6 +1,6 @@
 # 🚀 Flutter BLoC Clean Architecture Generator
 
-A powerful CLI tool to scaffold Flutter projects with **BLoC pattern**, **Clean Architecture**, and **best practices** baked in. Production-ready structure with **go_router**, **Dio**, and modern Flutter stack.
+A powerful CLI tool to scaffold Flutter projects with **BLoC pattern**, **Clean Architecture**, and **best practices** baked in. Production-ready structure with **go_router**, **Dio**, **Envied**, **Logger**, **Sizer**, and modern Flutter stack.
 
 ---
 
@@ -16,6 +16,14 @@ A powerful CLI tool to scaffold Flutter projects with **BLoC pattern**, **Clean 
 - ✅ **Error handling** (Failure/Exception pattern)
 - ✅ **Very Good Analysis** linting rules
 - ✅ **fpdart** for functional error handling (Either result)
+
+### **Production Readiness**
+- 🌐 **Environment Config** with `envied` (obfuscated keys)
+- 🌍 **Localization** (l10n) with ARB files (EN & ID)
+- 💾 **Local Storage** wrapper for `shared_preferences`
+- 📝 **Logging** with `logger` (replaces `print` in interceptors)
+- 📱 **Native Scaffolding** (launcher icons & splash screen)
+- 📐 **Responsive UI** with `sizer`
 
 ### **Pre-built Components**
 - 🎨 **Material 3** theming system
@@ -37,6 +45,9 @@ dart tools/generator.dart inject
 
 # 2. Rename project (Recommended)
 dart tools/generator.dart rename my_cool_app
+
+# 3. Setup production features
+dart tools/generator.dart setup all
 ```
 
 This will:
@@ -198,6 +209,54 @@ dart tools/generator.dart rename my_new_app
 - ✅ Updates Web & Linux platform metadata
 - ✅ Updates references in all `.md` files
 
+### **Setup Production Features**
+
+Automate the setup of production-ready features with a single command:
+
+```bash
+# Setup everything at once
+dart tools/generator.dart setup all
+
+# Or setup individually
+dart tools/generator.dart setup env        # Environment config (Envied)
+dart tools/generator.dart setup l10n       # Localization (l10n)
+dart tools/generator.dart setup storage    # Local storage (SharedPreferences)
+dart tools/generator.dart setup logger     # Logging system (Logger)
+dart tools/generator.dart setup native     # Launcher icons & splash screen
+dart tools/generator.dart setup responsive # Responsive utility (Sizer)
+```
+
+**What each setup does:**
+
+| Feature | Files Created | Files Patched |
+|---------|--------------|---------------|
+| **env** | `env/.env.*`, `lib/core/config/env.dart` | `.gitignore` |
+| **l10n** | `l10n.yaml`, `lib/l10n/*.arb` | `app.dart`, `pubspec.yaml` |
+| **storage** | `lib/core/services/storage_service.dart` | `service_locator.dart` |
+| **logger** | `lib/core/utils/logger_utils.dart` | `interceptors.dart` |
+| **native** | `flutter_launcher_icons.yaml`, `flutter_native_splash.yaml` | `pubspec.yaml` |
+| **responsive** | — | `app.dart` (Sizer wrapper) |
+
+**After setup, install dependencies:**
+
+```bash
+# Dependencies
+flutter pub add envied shared_preferences logger sizer
+flutter pub add flutter_localizations --sdk=flutter
+flutter pub add intl
+
+# Dev Dependencies
+flutter pub add --dev envied_generator build_runner
+flutter pub add --dev flutter_launcher_icons flutter_native_splash
+
+# Generate env code
+dart run build_runner build --delete-conflicting-outputs
+
+# Generate native assets (after placing images in assets/images/)
+dart run flutter_launcher_icons
+dart run flutter_native_splash:create
+```
+
 ---
 
 ## 🏗️ Project Structure
@@ -222,9 +281,14 @@ lib/
 │   ├── error/
 │   │   ├── failure.dart          # Failure classes
 │   │   └── exception.dart        # Exception classes
+│   ├── config/
+│   │   └── env.dart              # Environment variables (Envied)
+│   ├── services/
+│   │   └── storage_service.dart   # SharedPreferences wrapper
 │   ├── utils/
 │   │   ├── constants.dart
-│   │   └── validators.dart       # Form validators
+│   │   ├── validators.dart       # Form validators
+│   │   └── logger_utils.dart     # Logger utility
 │   └── extensions/
 │       └── context_extension.dart
 │
@@ -654,6 +718,15 @@ dart tools/generator.dart widget <widget_name>
 
 # Rename project and package
 dart tools/generator.dart rename <new_name>
+
+# Setup production features
+dart tools/generator.dart setup all          # All features
+dart tools/generator.dart setup env          # Environment config
+dart tools/generator.dart setup l10n         # Localization
+dart tools/generator.dart setup storage      # Local storage
+dart tools/generator.dart setup logger       # Logging system
+dart tools/generator.dart setup native       # Icons & splash
+dart tools/generator.dart setup responsive   # Responsive UI
 ```
 
 ---
