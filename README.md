@@ -43,19 +43,16 @@ A powerful CLI tool to scaffold Flutter projects with **BLoC pattern**, **Clean 
 ## 🎯 Quick Start
 
 ### **1. Setup (First Time)**
-
+   
 ```bash
 # In your Flutter project root
-# 1. Inject structure
-dart tools/generator.dart inject
+# 1. Initialize & Rename Project (All-in-one)
+dart tools/generator.dart init my_cool_app
 
-# 2. Rename project (Recommended)
-dart tools/generator.dart rename my_cool_app
-
-# 3. Setup production features
+# 2. Setup production features
 dart tools/generator.dart setup all
 
-# 4. Create offline-first feature (optional)
+# 3. Create offline-first feature (optional)
 dart tools/generator.dart offline notes
 ```
 
@@ -67,7 +64,7 @@ This will:
 
 ### **2. Install Dependencies**
 
-After injection, add these to your `pubspec.yaml`:
+After initialization, add these to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
@@ -391,7 +388,7 @@ sequenceDiagram
     participant CLI as Generator CLI
     participant FS as File System
 
-    User->>CLI: dart tools/generator.dart inject
+    User->>CLI: dart tools/generator.dart init <project_name>
     CLI->>FS: Create lib/core, lib/features, etc.
     CLI->>FS: Generate main.dart, app.dart, utils, etc.
     CLI->>FS: Create Sample Home Feature
@@ -715,8 +712,8 @@ class AppColors {
 ## 📝 Commands Reference
 
 ```bash
-# Initialize structure in current project
-dart tools/generator.dart inject
+# Initialize structure & rename package
+dart tools/generator.dart init <project_name>
 
 # Create feature with boilerplate samples
 dart tools/generator.dart feature <feature_name>
