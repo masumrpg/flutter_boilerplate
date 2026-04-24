@@ -1,7 +1,8 @@
 import 'dart:io';
+import '../utils/utils.dart';
 
-void setupProduction({String? feature}) {
-  if (feature == null || feature == 'all') {
+void setupProduction({String feature = 'all'}) {
+  if (feature == 'all') {
     print('📦 Setting up all production-ready features...');
     print('');
     setupEnv();
@@ -197,7 +198,7 @@ class StorageService {
 ''');
 
   // Patch service_locator.dart if it exists
-  _patchDIForStorage();
+  _patchDIForStorage(getProjectName());
 
   print('  ✅ Created: lib/core/services/storage_service.dart');
   print('  ℹ️  Run: flutter pub add shared_preferences');
@@ -341,21 +342,21 @@ void _patchAppForSizer() {
 
   // Wrap MaterialApp.router with Sizer
   content = content.replaceFirst(
-    'return MaterialApp.router(',
+    RegExp(r'return\s+MaterialApp\.router\s*\('),
     'return Sizer(\n      builder: (context, orientation, deviceType) {\n        return MaterialApp.router(',
   );
 
   // Close Sizer builder — replace the widget closing
   content = content.replaceFirst(
-    '    );\n  }\n}',
-    '        );\n      },\n    );\n  }\n}',
+    RegExp(r'\s*\);\s*}\s*}\s*$'),
+    '\n        );\n      },\n    );\n  }\n}',
   );
 
   appFile.writeAsStringSync(content);
   print('  ✅ Patched: lib/app.dart (Sizer wrapper added)');
 }
 
-void _patchDIForStorage() {
+void _patchDIForStorage(String projectName) {
   final diFile = File('lib/core/di/service_locator.dart');
   if (!diFile.existsSync()) return;
 
@@ -364,14 +365,14 @@ void _patchDIForStorage() {
 
   // Add imports
   content = content.replaceFirst(
-    "import 'package:get_it/get_it.dart';",
-    "import 'package:get_it/get_it.dart';\nimport 'package:shared_preferences/shared_preferences.dart';\nimport '../services/storage_service.dart';",
+    RegExp(r"import\s+'package:get_it/get_it\.dart';"),
+    "import 'package:get_it/get_it.dart';\nimport 'package:shared_preferences/shared_preferences.dart';\nimport 'package:$projectName/core/services/storage_service.dart';",
   );
 
   // Add registration
   content = content.replaceFirst(
-    '  // Network',
-    '  // Storage\n  final prefs = await SharedPreferences.getInstance();\n  sl.registerLazySingleton(() => StorageService(prefs));\n\n  // Network',
+    RegExp(r'//\s*Network'),
+    '// Storage\n  final prefs = await SharedPreferences.getInstance();\n  sl.registerLazySingleton(() => StorageService(prefs));\n\n  // Network',
   );
 
   diFile.writeAsStringSync(content);
@@ -387,7 +388,7 @@ void _patchInterceptorsForLogger() {
 
   // Add import
   content = content.replaceFirst(
-    "import 'package:dio/dio.dart';",
+    RegExp(r"import\s+'package:dio/dio\.dart';"),
     "import 'package:dio/dio.dart';\nimport '../utils/logger_utils.dart';",
   );
 

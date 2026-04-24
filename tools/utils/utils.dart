@@ -60,12 +60,13 @@ void injectRoute(String feature, String featureClass) {
 
   // Route insertion
   // Look for the routes list [ ... ]
-  final routesStartIndex = content.indexOf('routes: [');
-  if (routesStartIndex == -1) return;
+  final routesMatch = RegExp(r'routes:\s*(?:<[^>]+>)?\s*\[').firstMatch(content);
+  if (routesMatch == null) return;
 
+  final routesStartIndex = routesMatch.end - 1; // Index of '['
   final routesEndIndex = findMatchingBracket(
     content,
-    routesStartIndex + 'routes: '.length,
+    routesStartIndex,
   );
   if (routesEndIndex == -1) return;
 
@@ -91,6 +92,19 @@ void injectRoute(String feature, String featureClass) {
 
   file.writeAsStringSync(content);
   print('   ➕ Injected route configuration for $feature');
+}
+
+String getProjectName() {
+  final pubspecFile = File('pubspec.yaml');
+  if (pubspecFile.existsSync()) {
+    final content = pubspecFile.readAsStringSync();
+    final match = RegExp(r'^name:\s*(\w+)', multiLine: true).firstMatch(content);
+    if (match != null) {
+      return match.group(1)!;
+    }
+  }
+  // Fallback to directory name if pubspec is missing or invalid
+  return Directory.current.path.split(Platform.pathSeparator).last.replaceAll('-', '_').toLowerCase();
 }
 
 String capitalize(String s) => s[0].toUpperCase() + s.substring(1);

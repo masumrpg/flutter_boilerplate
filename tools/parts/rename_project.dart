@@ -15,35 +15,25 @@ void renameProject(String newName) {
   }
 
   final currentName = nameMatch.group(1)!;
-  final templateName = 'flutter_boilerplate';
 
   print('🔄 Renaming project to "$newName"...');
   if (currentName != newName) {
     print('   (Current name: "$currentName")');
   }
 
+  final oldNames = {currentName};
+
   // 1. Update pubspec.yaml
   _updatePubspec(newName);
-
-  final oldNames = {currentName, templateName, 'flutter_boilerplate'};
 
   // 2. Update Dart imports
   _updateDartImports(oldNames, newName);
 
-  // 3. Update Android files
-  _updateAndroidProject(oldNames, newName);
-
-  // 4. Update iOS project
-  _updateIOSProject(oldNames, newName);
-
-  // 5. Update Web project
-  _updateWebProject(oldNames, newName);
-
-  // 6. Update Linux project
-  _updateLinuxProject(oldNames, newName);
-
-  // 7. Update Documentation
+  // 3. Update Documentation using word boundaries
   _updateDocumentation(oldNames, newName);
+
+  // 4. Update Native Projects using rename package
+  _updateNativeProjects(newName);
 
   print('\n✨ Project renamed successfully to "$newName"!');
   print('📝 Note: You might need to run "flutter pub get" and "flutter clean".');
@@ -89,108 +79,6 @@ void _updateDartImports(Set<String> oldNames, String newName) {
   print('✅ Updated: $count Dart files');
 }
 
-void _updateAndroidProject(Set<String> oldNames, String newName) {
-  // Update build.gradle (.kts)
-  final gradleFiles = [
-    File('android/app/build.gradle'),
-    File('android/app/build.gradle.kts'),
-  ];
-
-  for (final gradleFile in gradleFiles) {
-    if (gradleFile.existsSync()) {
-      String content = gradleFile.readAsStringSync();
-      for (final oldName in oldNames) {
-        content = content.replaceAll('com.example.$oldName', 'com.example.$newName');
-      }
-      content = content.replaceAll(RegExp(r'namespace\s*=\s*".*"'), 'namespace = "com.example.$newName"');
-      content = content.replaceAll(RegExp(r'applicationId\s*=\s*".*"'), 'applicationId = "com.example.$newName"');
-      gradleFile.writeAsStringSync(content);
-      print('✅ Updated: ${gradleFile.path}');
-    }
-  }
-
-  // Update Manifest
-  final manifestFile = File('android/app/src/main/AndroidManifest.xml');
-  if (manifestFile.existsSync()) {
-    String content = manifestFile.readAsStringSync();
-    for (final oldName in oldNames) {
-      content = content.replaceAll('com.example.$oldName', 'com.example.$newName');
-    }
-    content = content.replaceAll(RegExp(r'android:label=".*"'), 'android:label="$newName"');
-    manifestFile.writeAsStringSync(content);
-    print('✅ Updated: AndroidManifest.xml');
-  }
-
-  // Update MainActivity (.kt or .java)
-  // We try to find any MainActivity in the expected package structure
-  final basePaths = [
-    'android/app/src/main/kotlin',
-    'android/app/src/main/java',
-  ];
-
-  for (final base in basePaths) {
-    final dir = Directory(base);
-    if (!dir.existsSync()) continue;
-
-    dir.listSync(recursive: true).forEach((entity) {
-      if (entity is File && (entity.path.endsWith('MainActivity.kt') || entity.path.endsWith('MainActivity.java'))) {
-        String content = entity.readAsStringSync();
-        bool changed = false;
-        for (final oldName in oldNames) {
-          if (content.contains('package com.example.$oldName')) {
-            content = content.replaceAll('package com.example.$oldName', 'package com.example.$newName');
-            changed = true;
-          }
-        }
-        if (changed) {
-          entity.writeAsStringSync(content);
-          print('✅ Updated: ${entity.path} (Warning: Directory structure not changed)');
-        }
-      }
-    });
-  }
-}
-
-void _updateIOSProject(Set<String> oldNames, String newName) {
-  final pbxprojFile = File('ios/Runner.xcodeproj/project.pbxproj');
-  if (pbxprojFile.existsSync()) {
-    String content = pbxprojFile.readAsStringSync();
-    for (final oldName in oldNames) {
-      content = content.replaceAll('com.example.$oldName', 'com.example.$newName');
-    }
-    content = content.replaceAll(RegExp(r'PRODUCT_BUNDLE_IDENTIFIER\s*=\s*.*;'), 'PRODUCT_BUNDLE_IDENTIFIER = com.example.$newName;');
-    pbxprojFile.writeAsStringSync(content);
-    print('✅ Updated: project.pbxproj');
-  }
-}
-
-void _updateWebProject(Set<String> oldNames, String newName) {
-  final files = ['web/index.html', 'web/manifest.json'];
-  for (final path in files) {
-    final file = File(path);
-    if (file.existsSync()) {
-      String content = file.readAsStringSync();
-      for (final oldName in oldNames) {
-        content = content.replaceAll(oldName, newName);
-      }
-      file.writeAsStringSync(content);
-      print('✅ Updated: $path');
-    }
-  }
-}
-
-void _updateLinuxProject(Set<String> oldNames, String newName) {
-  final file = File('linux/runner/my_application.cc');
-  if (file.existsSync()) {
-    String content = file.readAsStringSync();
-    for (final oldName in oldNames) {
-      content = content.replaceAll('"$oldName"', '"$newName"');
-    }
-    file.writeAsStringSync(content);
-    print('✅ Updated: linux/runner/my_application.cc');
-  }
-}
-
 void _updateDocumentation(Set<String> oldNames, String newName) {
   final rootDir = Directory.current;
   int count = 0;
@@ -202,8 +90,10 @@ void _updateDocumentation(Set<String> oldNames, String newName) {
       String content = entity.readAsStringSync();
       bool changed = false;
       for (final oldName in oldNames) {
-        if (content.contains(oldName)) {
-          content = content.replaceAll(oldName, newName);
+        // Use word boundaries so we don't accidentally replace substrings
+        final pattern = RegExp(r'\b' + oldName + r'\b');
+        if (pattern.hasMatch(content)) {
+          content = content.replaceAll(pattern, newName);
           changed = true;
         }
       }
@@ -214,4 +104,36 @@ void _updateDocumentation(Set<String> oldNames, String newName) {
     }
   });
   print('✅ Updated: $count documentation files');
+}
+
+void _updateNativeProjects(String newName) {
+  print('⚙️ Running native rename using package "rename"...');
+  
+  // 1. Install rename globally
+  print('  Installing "rename" package globally...');
+  var result = Process.runSync('dart', ['pub', 'global', 'activate', 'rename']);
+  if (result.exitCode != 0) {
+    print('❌ Failed to install rename package: ${result.stderr}');
+    return;
+  }
+  
+  // Create pretty app name from snake_case
+  final appName = newName.split('_').map((word) => word.isNotEmpty ? '${word[0].toUpperCase()}${word.substring(1)}' : '').join(' ');
+
+  // 2. Run setAppName
+  print('  Setting App Name to "$appName"...');
+  result = Process.runSync('dart', ['pub', 'global', 'run', 'rename', 'setAppName', '--targets', 'ios,android,macos,linux,windows,web', '--value', appName]);
+  if (result.exitCode != 0) {
+    print('⚠️  Failed to set app name: ${result.stderr}');
+  }
+
+  // 3. Run setBundleId
+  final bundleId = 'com.example.$newName';
+  print('  Setting Bundle ID to "$bundleId"...');
+  result = Process.runSync('dart', ['pub', 'global', 'run', 'rename', 'setBundleId', '--targets', 'ios,android,macos,linux,windows,web', '--value', bundleId]);
+  if (result.exitCode != 0) {
+    print('⚠️  Failed to set bundle id: ${result.stderr}');
+  }
+  
+  print('✅ Updated Native Projects (Android, iOS, Web, Desktop)');
 }

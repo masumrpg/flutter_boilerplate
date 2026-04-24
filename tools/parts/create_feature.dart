@@ -21,15 +21,17 @@ void createFeature(String featureName, {bool withSample = false}) {
     Directory(dir).createSync(recursive: true);
   }
 
+  final projectName = getProjectName();
+
   // Create repository interface
   final repoContent = '''
 import 'package:fpdart/fpdart.dart';
-import '../../../../core/error/failure.dart';
+import 'package:$projectName/core/error/failure.dart';
 import '../entities/${feature}_entity.dart';
 
 abstract class ${featureClass}Repository {
   Future<Either<Failure, List<${featureClass}Entity>>> getItems();
-  // Future<Either<Failure, ${featureClass}Entity>> getItemById(String id);
+  Future<Either<Failure, ${featureClass}Entity>> getItemById(String id);
 }
 ''';
   File(
@@ -39,8 +41,8 @@ abstract class ${featureClass}Repository {
   // Create repository implementation
   final repoImplContent = '''
 import 'package:fpdart/fpdart.dart';
-import '../../../../core/error/failure.dart';
-import '../../../../core/error/exception.dart';
+import 'package:$projectName/core/error/failure.dart';
+import 'package:$projectName/core/error/exception.dart';
 import '../../domain/repositories/${feature}_repository.dart';
 import '../../domain/entities/${feature}_entity.dart';
 import '../datasources/${feature}_remote_datasource.dart';
@@ -122,8 +124,8 @@ class ${featureClass}Model extends ${featureClass}Entity {
 
   // Create datasource example
   final datasourceContent = '''
-import '../../../../core/network/api_client.dart';
-import '../../../../core/error/exception.dart';
+import 'package:$projectName/core/network/api_client.dart';
+import 'package:$projectName/core/error/exception.dart';
 import '../models/${feature}_model.dart';
 // import 'package:dio/dio.dart'; // Uncomment if needed
 
@@ -523,11 +525,12 @@ class ${featureClass}Page extends StatelessWidget {
       }
 
       // Route insertion
-      final routesStartIndex = content.indexOf('routes: [');
-      if (routesStartIndex != -1) {
+      final routesMatch = RegExp(r'routes:\s*(?:<[^>]+>)?\s*\[').firstMatch(content);
+      if (routesMatch != null) {
+        final routesStartIndex = routesMatch.end - 1; // Index of '['
         final routesEndIndex = findMatchingBracket(
           content,
-          routesStartIndex + 'routes: '.length,
+          routesStartIndex,
         );
         if (routesEndIndex != -1) {
           final routeEntry = '''

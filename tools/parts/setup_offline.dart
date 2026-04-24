@@ -9,35 +9,38 @@ void setupOffline(String featureName) {
   print('🔄 Setting up Offline-First feature: "$feature"...');
   print('');
 
+  final projectName = getProjectName();
+
   // 1. Create AppDatabase if it doesn't exist
-  _createAppDatabase(feature, featureClass);
+  _createAppDatabase(feature, featureClass, projectName);
 
   // 2. Create local datasource (Drift table + queries)
-  _createLocalDatasource(feature, featureClass);
+  _createLocalDatasource(feature, featureClass, projectName);
 
   // 3. Create domain model
-  _createModel(feature, featureClass);
+  _createModel(feature, featureClass, projectName);
 
   // 4. Create remote datasource (Dio)
-  _createRemoteDatasource(feature, featureClass);
+  _createRemoteDatasource(feature, featureClass, projectName);
 
   // 5. Create repository interface
-  _createRepositoryInterface(feature, featureClass);
+  _createRepositoryInterface(feature, featureClass, projectName);
 
   // 6. Create repository implementation (offline-first)
-  _createRepositoryImpl(feature, featureClass);
+  _createRepositoryImpl(feature, featureClass, projectName);
 
   // 7. Create BLoC (events, states, bloc)
-  _createBloc(feature, featureClass);
+  _createBloc(feature, featureClass, projectName);
 
   // 8. Create sample UI page
-  _createPage(feature, featureClass);
+  _createPage(feature, featureClass, projectName);
 
   // 9. Patch DI
-  _patchDI(feature, featureClass);
+  _patchDI(feature, featureClass, projectName);
 
-  // 10. Inject route
+  // 10. Inject routes
   injectRouteName(feature);
+  injectRoute(feature, featureClass);
 
   print('');
   print('✅ Offline-first feature "$feature" created successfully!');
@@ -56,7 +59,7 @@ void setupOffline(String featureName) {
 
 // ─── 1. AppDatabase ──────────────────────────────────────────────────────────
 
-void _createAppDatabase(String feature, String featureClass) {
+void _createAppDatabase(String feature, String featureClass, String projectName) {
   final dir = Directory('lib/core/database');
   dir.createSync(recursive: true);
 
@@ -71,7 +74,7 @@ import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
 // Import tables here
-import '../../features/$feature/data/datasources/${feature}_local_datasource.dart';
+import 'package:$projectName/features/$feature/data/datasources/${feature}_local_datasource.dart';
 
 part 'app_database.g.dart';
 
@@ -95,14 +98,14 @@ class AppDatabase extends _\$AppDatabase {
 
 // ─── 2. Local Datasource (Drift Table) ───────────────────────────────────────
 
-void _createLocalDatasource(String feature, String featureClass) {
+void _createLocalDatasource(String feature, String featureClass, String projectName) {
   final dir = Directory('lib/features/$feature/data/datasources');
   dir.createSync(recursive: true);
 
   File('lib/features/$feature/data/datasources/${feature}_local_datasource.dart')
       .writeAsStringSync('''
 import 'package:drift/drift.dart';
-import '../../../../core/database/app_database.dart';
+import 'package:$projectName/core/database/app_database.dart';
 
 // ─── Table Definition ────────────────────────────────────────────────────────
 
@@ -177,7 +180,7 @@ class ${featureClass}LocalDatasource {
 
 // ─── 3. Domain Model ─────────────────────────────────────────────────────────
 
-void _createModel(String feature, String featureClass) {
+void _createModel(String feature, String featureClass, String projectName) {
   final dir = Directory('lib/features/$feature/data/models');
   dir.createSync(recursive: true);
 
@@ -185,7 +188,7 @@ void _createModel(String feature, String featureClass) {
       .writeAsStringSync('''
 import 'package:drift/drift.dart';
 import 'package:equatable/equatable.dart';
-import '../../../../core/database/app_database.dart';
+import 'package:$projectName/core/database/app_database.dart';
 
 class ${featureClass}Model extends Equatable {
   final String id;
@@ -282,13 +285,13 @@ class ${featureClass}Model extends Equatable {
 
 // ─── 4. Remote Datasource ────────────────────────────────────────────────────
 
-void _createRemoteDatasource(String feature, String featureClass) {
+void _createRemoteDatasource(String feature, String featureClass, String projectName) {
   final dir = Directory('lib/features/$feature/data/datasources');
   dir.createSync(recursive: true);
 
   File('lib/features/$feature/data/datasources/${feature}_remote_datasource.dart')
       .writeAsStringSync('''
-import '../../../../core/network/api_client.dart';
+import 'package:$projectName/core/network/api_client.dart';
 import '../models/${feature}_model.dart';
 
 abstract class ${featureClass}RemoteDataSource {
@@ -347,7 +350,7 @@ class ${featureClass}RemoteDataSourceImpl implements ${featureClass}RemoteDataSo
 
 // ─── 5. Repository Interface ─────────────────────────────────────────────────
 
-void _createRepositoryInterface(String feature, String featureClass) {
+void _createRepositoryInterface(String feature, String featureClass, String projectName) {
   final dir = Directory('lib/features/$feature/domain/repositories');
   dir.createSync(recursive: true);
 
@@ -379,7 +382,7 @@ abstract class ${featureClass}Repository {
 
 // ─── 6. Repository Implementation ────────────────────────────────────────────
 
-void _createRepositoryImpl(String feature, String featureClass) {
+void _createRepositoryImpl(String feature, String featureClass, String projectName) {
   final dir = Directory('lib/features/$feature/data/repositories');
   dir.createSync(recursive: true);
 
@@ -493,7 +496,7 @@ class ${featureClass}RepositoryImpl implements ${featureClass}Repository {
 
 // ─── 7. BLoC ─────────────────────────────────────────────────────────────────
 
-void _createBloc(String feature, String featureClass) {
+void _createBloc(String feature, String featureClass, String projectName) {
   final dir = Directory('lib/features/$feature/bloc');
   dir.createSync(recursive: true);
 
@@ -750,7 +753,7 @@ class ${featureClass}Bloc extends Bloc<${featureClass}Event, ${featureClass}Stat
 
 // ─── 8. UI Page ──────────────────────────────────────────────────────────────
 
-void _createPage(String feature, String featureClass) {
+void _createPage(String feature, String featureClass, String projectName) {
   final dir = Directory('lib/features/$feature/ui/pages');
   dir.createSync(recursive: true);
 
@@ -953,7 +956,7 @@ class _${featureClass}View extends StatelessWidget {
 
 // ─── 9. Patch DI ─────────────────────────────────────────────────────────────
 
-void _patchDI(String feature, String featureClass) {
+void _patchDI(String feature, String featureClass, String projectName) {
   final diFile = File('lib/core/di/service_locator.dart');
   if (!diFile.existsSync()) {
     print('  ⚠️  Skipped DI patch: lib/core/di/service_locator.dart not found');
@@ -967,13 +970,13 @@ void _patchDI(String feature, String featureClass) {
 
   // Add imports
   final imports = '''
-import '../../features/$feature/data/datasources/${feature}_local_datasource.dart';
-import '../../features/$feature/data/datasources/${feature}_remote_datasource.dart';
-import '../../features/$feature/data/repositories/${feature}_repository_impl.dart';
-import '../../features/$feature/domain/repositories/${feature}_repository.dart';
-import '../../features/$feature/bloc/${feature}_bloc.dart';
+import 'package:$projectName/features/$feature/data/datasources/${feature}_local_datasource.dart';
+import 'package:$projectName/features/$feature/data/datasources/${feature}_remote_datasource.dart';
+import 'package:$projectName/features/$feature/data/repositories/${feature}_repository_impl.dart';
+import 'package:$projectName/features/$feature/domain/repositories/${feature}_repository.dart';
+import 'package:$projectName/features/$feature/bloc/${feature}_bloc.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import '../database/app_database.dart';
+import 'package:$projectName/core/database/app_database.dart';
 ''';
 
   content = content.replaceFirst(
