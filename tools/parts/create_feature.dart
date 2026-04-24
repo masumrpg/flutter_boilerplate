@@ -2,7 +2,7 @@ import 'dart:io';
 
 import '../utils/utils.dart';
 
-void createFeature(String featureName, {bool withSample = false}) {
+void createFeature(String featureName, {String? projectName, bool withSample = false}) {
   final feature = featureName.toLowerCase();
   final featureClass = toPascalCase(feature);
 
@@ -21,13 +21,13 @@ void createFeature(String featureName, {bool withSample = false}) {
     Directory(dir).createSync(recursive: true);
   }
 
-  final projectName = getProjectName();
+  final actualProjectName = projectName ?? getProjectName();
 
   // Create repository interface
   final repoContent = '''
 import 'package:fpdart/fpdart.dart';
-import 'package:$projectName/core/error/failure.dart';
-import '../entities/${feature}_entity.dart';
+import 'package:$actualProjectName/core/error/failure.dart';
+import 'package:$actualProjectName/features/$feature/domain/entities/${feature}_entity.dart';
 
 abstract class ${featureClass}Repository {
   Future<Either<Failure, List<${featureClass}Entity>>> getItems();
@@ -41,11 +41,11 @@ abstract class ${featureClass}Repository {
   // Create repository implementation
   final repoImplContent = '''
 import 'package:fpdart/fpdart.dart';
-import 'package:$projectName/core/error/failure.dart';
-import 'package:$projectName/core/error/exception.dart';
-import '../../domain/repositories/${feature}_repository.dart';
-import '../../domain/entities/${feature}_entity.dart';
-import '../datasources/${feature}_remote_datasource.dart';
+import 'package:$actualProjectName/core/error/failure.dart';
+import 'package:$actualProjectName/core/error/exception.dart';
+import 'package:$actualProjectName/features/$feature/domain/repositories/${feature}_repository.dart';
+import 'package:$actualProjectName/features/$feature/domain/entities/${feature}_entity.dart';
+import 'package:$actualProjectName/features/$feature/data/datasources/${feature}_remote_datasource.dart';
 
 class ${featureClass}RepositoryImpl implements ${featureClass}Repository {
   final ${featureClass}RemoteDataSource remoteDataSource;
@@ -57,6 +57,18 @@ class ${featureClass}RepositoryImpl implements ${featureClass}Repository {
     try {
       final models = await remoteDataSource.getItems();
       return Right(models.map((e) => e.toEntity()).toList());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, ${featureClass}Entity>> getItemById(String id) async {
+    try {
+      final model = await remoteDataSource.getItemById(id);
+      return Right(model.toEntity());
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {
@@ -90,7 +102,7 @@ class ${featureClass}Entity extends Equatable {
 
   // Create model example
   final modelContent = '''
-import '../../domain/entities/${feature}_entity.dart';
+import 'package:$actualProjectName/features/$feature/domain/entities/${feature}_entity.dart';
 
 class ${featureClass}Model extends ${featureClass}Entity {
   const ${featureClass}Model({
@@ -124,10 +136,9 @@ class ${featureClass}Model extends ${featureClass}Entity {
 
   // Create datasource example
   final datasourceContent = '''
-import 'package:$projectName/core/network/api_client.dart';
-import 'package:$projectName/core/error/exception.dart';
-import '../models/${feature}_model.dart';
-// import 'package:dio/dio.dart'; // Uncomment if needed
+import 'package:$actualProjectName/core/network/api_client.dart';
+import 'package:$actualProjectName/core/error/exception.dart';
+import 'package:$actualProjectName/features/$feature/data/models/${feature}_model.dart';
 
 abstract class ${featureClass}RemoteDataSource {
   Future<List<${featureClass}Model>> getItems();
@@ -511,7 +522,7 @@ class ${featureClass}Page extends StatelessWidget {
       var content = file.readAsStringSync();
 
       // Import insertion
-      final importStatement = "import '../features/$feature/ui/pages/${feature}_page.dart';";
+      final importStatement = "import 'package:$actualProjectName/features/$feature/ui/pages/${feature}_page.dart';";
       if (!content.contains(importStatement)) {
         final lastImportIndex = content.lastIndexOf('import ');
         if (lastImportIndex != -1) {

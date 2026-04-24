@@ -44,8 +44,9 @@ void injectRoute(String feature, String featureClass) {
   if (content.contains('path: RouteNames.$feature')) return;
 
   // Import insertion
+  final projectName = getProjectName();
   final importStatement =
-      "import '../features/$feature/ui/pages/${feature}_page.dart';";
+      "import 'package:$projectName/features/$feature/ui/pages/${feature}_page.dart';";
   if (!content.contains(importStatement)) {
     final lastImportIndex = content.lastIndexOf('import ');
     if (lastImportIndex != -1) {

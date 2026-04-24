@@ -135,5 +135,34 @@ void _updateNativeProjects(String newName) {
     print('⚠️  Failed to set bundle id: ${result.stderr}');
   }
   
+  // 4. Fix Linux/Windows BINARY_NAME (they don't like spaces in CMake targets)
+  _fixDesktopBinaryNames(newName);
+  
   print('✅ Updated Native Projects (Android, iOS, Web, Desktop)');
+}
+
+void _fixDesktopBinaryNames(String newName) {
+  // Linux
+  final linuxCMake = File('linux/CMakeLists.txt');
+  if (linuxCMake.existsSync()) {
+    var content = linuxCMake.readAsStringSync();
+    content = content.replaceFirst(
+      RegExp(r'set\(BINARY_NAME\s+"[^"]+"\)', multiLine: true),
+      'set(BINARY_NAME "$newName")',
+    );
+    linuxCMake.writeAsStringSync(content);
+    print('  ✅ Fixed Linux BINARY_NAME (no spaces)');
+  }
+
+  // Windows
+  final windowsCMake = File('windows/CMakeLists.txt');
+  if (windowsCMake.existsSync()) {
+    var content = windowsCMake.readAsStringSync();
+    content = content.replaceFirst(
+      RegExp(r'set\(BINARY_NAME\s+"[^"]+"\)', multiLine: true),
+      'set(BINARY_NAME "$newName")',
+    );
+    windowsCMake.writeAsStringSync(content);
+    print('  ✅ Fixed Windows BINARY_NAME (no spaces)');
+  }
 }

@@ -1,10 +1,10 @@
 import 'dart:io';
 
-void createAppFile() {
+void createAppFile(String projectName) {
   final content = '''
 import 'package:flutter/material.dart';
-import 'core/theme/app_theme.dart';
-import 'routes/app_router.dart';
+import 'package:$projectName/core/theme/app_theme.dart';
+import 'package:$projectName/routes/app_router.dart';
 
 class App extends StatelessWidget {
   const App({super.key});

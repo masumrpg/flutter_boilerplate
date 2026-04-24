@@ -292,7 +292,7 @@ void _createRemoteDatasource(String feature, String featureClass, String project
   File('lib/features/$feature/data/datasources/${feature}_remote_datasource.dart')
       .writeAsStringSync('''
 import 'package:$projectName/core/network/api_client.dart';
-import '../models/${feature}_model.dart';
+import 'package:$projectName/features/$feature/data/models/${feature}_model.dart';
 
 abstract class ${featureClass}RemoteDataSource {
   Future<List<${featureClass}Model>> fetchAll();
@@ -356,7 +356,7 @@ void _createRepositoryInterface(String feature, String featureClass, String proj
 
   File('lib/features/$feature/domain/repositories/${feature}_repository.dart')
       .writeAsStringSync('''
-import '../../data/models/${feature}_model.dart';
+import 'package:$projectName/features/$feature/data/models/${feature}_model.dart';
 
 abstract class ${featureClass}Repository {
   /// Watch all items reactively from local DB
@@ -389,10 +389,10 @@ void _createRepositoryImpl(String feature, String featureClass, String projectNa
   File('lib/features/$feature/data/repositories/${feature}_repository_impl.dart')
       .writeAsStringSync('''
 import 'package:connectivity_plus/connectivity_plus.dart';
-import '../../domain/repositories/${feature}_repository.dart';
-import '../datasources/${feature}_local_datasource.dart';
-import '../datasources/${feature}_remote_datasource.dart';
-import '../models/${feature}_model.dart';
+import 'package:$projectName/features/$feature/domain/repositories/${feature}_repository.dart';
+import 'package:$projectName/features/$feature/data/datasources/${feature}_local_datasource.dart';
+import 'package:$projectName/features/$feature/data/datasources/${feature}_remote_datasource.dart';
+import 'package:$projectName/features/$feature/data/models/${feature}_model.dart';
 
 class ${featureClass}RepositoryImpl implements ${featureClass}Repository {
   final ${featureClass}LocalDatasource localDatasource;
@@ -503,7 +503,7 @@ void _createBloc(String feature, String featureClass, String projectName) {
   // Events
   File('lib/features/$feature/bloc/${feature}_event.dart').writeAsStringSync('''
 import 'package:equatable/equatable.dart';
-import '../data/models/${feature}_model.dart';
+import 'package:$projectName/features/$feature/data/models/${feature}_model.dart';
 
 abstract class ${featureClass}Event extends Equatable {
   const ${featureClass}Event();
@@ -553,7 +553,7 @@ class ${featureClass}SyncRequested extends ${featureClass}Event {
   // States
   File('lib/features/$feature/bloc/${feature}_state.dart').writeAsStringSync('''
 import 'package:equatable/equatable.dart';
-import '../data/models/${feature}_model.dart';
+import 'package:$projectName/features/$feature/data/models/${feature}_model.dart';
 
 abstract class ${featureClass}State extends Equatable {
   const ${featureClass}State();
@@ -611,8 +611,8 @@ class ${featureClass}Error extends ${featureClass}State {
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import '../domain/repositories/${feature}_repository.dart';
-import '../data/models/${feature}_model.dart';
+import 'package:$projectName/features/$feature/domain/repositories/${feature}_repository.dart';
+import 'package:$projectName/features/$feature/data/models/${feature}_model.dart';
 import '${feature}_event.dart';
 import '${feature}_state.dart';
 
@@ -762,10 +762,10 @@ void _createPage(String feature, String featureClass, String projectName) {
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
-import '../../bloc/${feature}_bloc.dart';
-import '../../bloc/${feature}_event.dart';
-import '../../bloc/${feature}_state.dart';
-import '../../data/models/${feature}_model.dart';
+import 'package:$projectName/features/$feature/bloc/${feature}_bloc.dart';
+import 'package:$projectName/features/$feature/bloc/${feature}_event.dart';
+import 'package:$projectName/features/$feature/bloc/${feature}_state.dart';
+import 'package:$projectName/features/$feature/data/models/${feature}_model.dart';
 
 class ${featureClass}Page extends StatelessWidget {
   const ${featureClass}Page({super.key});

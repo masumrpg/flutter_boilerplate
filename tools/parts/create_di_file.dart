@@ -1,9 +1,9 @@
 import 'dart:io';
 
-void createDIFile() {
+void createDIFile(String projectName) {
   final content = '''
 import 'package:get_it/get_it.dart';
-import '../network/api_client.dart';
+import 'package:$projectName/core/network/api_client.dart';
 
 final sl = GetIt.instance;
 

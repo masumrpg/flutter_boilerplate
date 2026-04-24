@@ -1,13 +1,13 @@
 import 'dart:io';
 
-void createRouteFiles() {
+void createRouteFiles(String projectName) {
   // app_router.dart
   final routerContent = '''
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'route_names.dart';
-import '../features/home/ui/pages/home_page.dart';
-import '../shared/pages/splash_page.dart';
+import 'package:$projectName/routes/route_names.dart';
+import 'package:$projectName/features/home/ui/pages/home_page.dart';
+import 'package:$projectName/shared/pages/splash_page.dart';
 
 class AppRouter {
   static final router = GoRouter(
@@ -55,7 +55,7 @@ class RouteNames {
   final splashContent = '''
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../routes/route_names.dart';
+import 'package:$projectName/routes/route_names.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});

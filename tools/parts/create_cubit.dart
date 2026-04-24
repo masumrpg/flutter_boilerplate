@@ -3,10 +3,11 @@ import 'dart:io';
 import '../utils/utils.dart';
 
 
-void createCubit(String featureName, String cubitName, {bool withSample = false}) {
+void createCubit(String featureName, String cubitName, {String? projectName, bool withSample = false}) {
   final feature = featureName.toLowerCase();
   final cubit = cubitName.toLowerCase();
   final cubitClass = toPascalCase(cubit);
+  final actualProjectName = projectName ?? getProjectName();
 
   if (!Directory('lib/features/$feature').existsSync()) {
     print('❌ Feature "$feature" does not exist. Create it first with:');
@@ -21,7 +22,7 @@ void createCubit(String featureName, String cubitName, {bool withSample = false}
     final cubitContent = '''
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import '../domain/entities/${feature}_entity.dart';
+import 'package:$actualProjectName/features/$feature/domain/entities/${feature}_entity.dart';
 
 part '${cubit}_state.dart';
 

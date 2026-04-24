@@ -15,7 +15,8 @@ dart tools/generator.dart init <your_project_name>
 
 **What it does:**
 - **Project Rebranding**: Automatically renames the package in `pubspec.yaml`, Android namespace, iOS bundle ID, and all platform files.
-- **Absolute Imports**: Hardens the codebase by using `package:your_project_name/...` absolute imports everywhere.
+- **Absolute Import Hardening**: We eliminated relative imports (`../../`) in generated core files. This prevents path breakage if you move files around later.
+- **Auto-Fixer**: Automatically scans and converts ANY existing relative imports in the `lib/` directory to absolute `package:your_project_name/...` imports.
 - **Folder Scaffolding**: Creates `core`, `features`, `shared`, and `routes` directories.
 - **Base Files**: Generates `ApiClient`, `AppTheme`, `ServiceLocator`, and `AppRouter`.
 
@@ -37,7 +38,8 @@ dart tools/generator.dart feature <feature_name>
    - **Data Layer**: Datasources, Models, and Repository Implementation.
    - **Domain Layer**: Entities, Repository Interface, and Services.
    - **Presentation Layer**: BLoC/Cubit, Pages, and Widgets.
-3. **Auto-Routing**: It automatically registers the feature's route name in `route_names.dart`.
+3. **Hardened Imports**: All generated files use absolute imports (e.g., `import 'package:your_project/features/products/...'`).
+4. **Auto-Routing**: It automatically registers the feature's route name in `route_names.dart` and adds it to `app_router.dart`.
 
 ---
 

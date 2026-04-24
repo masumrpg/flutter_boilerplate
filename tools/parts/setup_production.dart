@@ -2,20 +2,21 @@ import 'dart:io';
 import '../utils/utils.dart';
 
 void setupProduction({String feature = 'all'}) {
+  final projectName = getProjectName();
   if (feature == 'all') {
     print('📦 Setting up all production-ready features...');
     print('');
-    setupEnv();
+    setupEnv(projectName);
     print('');
     setupL10n();
     print('');
-    setupStorage();
+    setupStorage(projectName);
     print('');
-    setupLogger();
+    setupLogger(projectName);
     print('');
     setupNative();
     print('');
-    setupResponsive();
+    setupResponsive(projectName);
     print('');
     _printDependencySummary();
     print('\n✨ All production-ready features setup successfully!');
@@ -23,22 +24,22 @@ void setupProduction({String feature = 'all'}) {
   } else {
     switch (feature) {
       case 'env':
-        setupEnv();
+        setupEnv(projectName);
         break;
       case 'l10n':
         setupL10n();
         break;
       case 'storage':
-        setupStorage();
+        setupStorage(projectName);
         break;
       case 'logger':
-        setupLogger();
+        setupLogger(projectName);
         break;
       case 'native':
         setupNative();
         break;
       case 'responsive':
-        setupResponsive();
+        setupResponsive(projectName);
         break;
       default:
         print('❌ Unknown setup feature: $feature');
@@ -49,7 +50,7 @@ void setupProduction({String feature = 'all'}) {
 
 // ─── 1. Environment Configuration ────────────────────────────────────────────
 
-void setupEnv() {
+void setupEnv(String projectName) {
   print('🌐 Setting up Environment (Envied)...');
 
   Directory('env').createSync();
@@ -151,7 +152,7 @@ output-localization-file: app_localizations.dart
 
 // ─── 3. Local Storage ────────────────────────────────────────────────────────
 
-void setupStorage() {
+void setupStorage(String projectName) {
   print('💾 Setting up Local Storage (SharedPreferences)...');
 
   Directory('lib/core/services').createSync(recursive: true);
@@ -198,7 +199,7 @@ class StorageService {
 ''');
 
   // Patch service_locator.dart if it exists
-  _patchDIForStorage(getProjectName());
+  _patchDIForStorage(projectName);
 
   print('  ✅ Created: lib/core/services/storage_service.dart');
   print('  ℹ️  Run: flutter pub add shared_preferences');
@@ -206,14 +207,14 @@ class StorageService {
 
 // ─── 4. Logger ───────────────────────────────────────────────────────────────
 
-void setupLogger() {
+void setupLogger(String projectName) {
   print('📝 Setting up Logging (Logger)...');
 
   Directory('lib/core/utils').createSync(recursive: true);
   File('lib/core/utils/logger_utils.dart').writeAsStringSync('''
 import 'package:logger/logger.dart';
 
-class Log {
+class LoggerUtils {
   static final Logger _logger = Logger(
     printer: PrettyPrinter(
       methodCount: 2,
@@ -224,29 +225,37 @@ class Log {
     ),
   );
 
-  /// Verbose log
+  /// Trace log
   static void t(String message) => _logger.t(message);
 
   /// Debug log
+  static void debug(String message) => _logger.d(message);
   static void d(String message) => _logger.d(message);
 
   /// Info log
+  static void info(String message) => _logger.i(message);
   static void i(String message) => _logger.i(message);
 
+  /// Success log
+  static void success(String message) => _logger.i('✅ \$message');
+
   /// Warning log
+  static void warning(String message) => _logger.w(message);
   static void w(String message) => _logger.w(message);
 
   /// Error log
+  static void error(String message, [dynamic error, StackTrace? stackTrace]) =>
+      _logger.e(message, error: error, stackTrace: stackTrace);
   static void e(String message, [dynamic error, StackTrace? stackTrace]) =>
       _logger.e(message, error: error, stackTrace: stackTrace);
 
-  /// What a terrible failure log
+  /// Fatal log
   static void f(String message) => _logger.f(message);
 }
 ''');
 
   // Patch interceptors.dart if it exists
-  _patchInterceptorsForLogger();
+  _patchInterceptorsForLogger(projectName);
 
   print('  ✅ Created: lib/core/utils/logger_utils.dart');
   print('  ℹ️  Run: flutter pub add logger');
@@ -284,7 +293,7 @@ void setupNative() {
 
 // ─── 6. Responsive Utility ──────────────────────────────────────────────────
 
-void setupResponsive() {
+void setupResponsive(String projectName) {
   print('📐 Setting up Responsive Utility (Sizer)...');
 
   // Patch app.dart if it exists
@@ -379,7 +388,7 @@ void _patchDIForStorage(String projectName) {
   print('  ✅ Patched: lib/core/di/service_locator.dart (StorageService registered)');
 }
 
-void _patchInterceptorsForLogger() {
+void _patchInterceptorsForLogger(String projectName) {
   final interceptorsFile = File('lib/core/network/interceptors.dart');
   if (!interceptorsFile.existsSync()) return;
 
@@ -389,7 +398,7 @@ void _patchInterceptorsForLogger() {
   // Add import
   content = content.replaceFirst(
     RegExp(r"import\s+'package:dio/dio\.dart';"),
-    "import 'package:dio/dio.dart';\nimport '../utils/logger_utils.dart';",
+    "import 'package:dio/dio.dart';\nimport 'package:$projectName/core/utils/logger_utils.dart';",
   );
 
   // Replace print statements with Log calls

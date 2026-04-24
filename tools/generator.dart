@@ -172,6 +172,9 @@ void initProject(String projectName) {
   print('');
 
   _generateStructure(projectName);
+  
+  print('🛡️  Hardening all imports to absolute paths...');
+  _hardenAllProjectImports(projectName);
 
   print('');
   print('✨ Project initialized successfully!');
@@ -182,6 +185,73 @@ void initProject(String projectName) {
   print('3. dart tools/generator.dart feature <your_feature>');
   print('4. Check lib/features/home/ for sample code!');
   print('5. flutter run');
+}
+
+void _hardenAllProjectImports(String projectName) {
+  final libDir = Directory('lib');
+  if (!libDir.existsSync()) return;
+
+  final files = libDir.listSync(recursive: true);
+  for (final entity in files) {
+    if (entity is File && entity.path.endsWith('.dart')) {
+      _hardenFileImports(entity, projectName);
+    }
+  }
+}
+
+void _hardenFileImports(File file, String projectName) {
+  final content = file.readAsStringSync();
+  final lines = content.split('\n');
+  bool modified = false;
+
+  final updatedLines = lines.map((line) {
+    // Match: import '../...' or import './...'
+    // But exclude package imports, dart imports, and part of/part
+    if (line.trim().startsWith('import \'') && 
+        (line.contains('\'../') || line.contains('\'./')) &&
+        !line.contains('package:') && 
+        !line.contains('dart:')) {
+      
+      // Get the relative path
+      final match = RegExp(r"import\s+'([^']+)'").firstMatch(line);
+      if (match != null) {
+        final relativePath = match.group(1)!;
+        
+        // Calculate absolute path from lib/
+        final fileDir = file.parent.path;
+        final absolutePath = _resolveRelativePath(fileDir, relativePath);
+        
+        if (absolutePath.startsWith('lib/')) {
+          final packagePath = absolutePath.replaceFirst('lib/', 'package:$projectName/');
+          modified = true;
+          return line.replaceFirst(relativePath, packagePath);
+        }
+      }
+    }
+    return line;
+  }).toList();
+
+  if (modified) {
+    file.writeAsStringSync(updatedLines.join('\n'));
+    // print('   🛡️  Hardened: ${file.path}');
+  }
+}
+
+String _resolveRelativePath(String currentDir, String relativePath) {
+  // Normalize paths
+  var segments = currentDir.split(Platform.pathSeparator);
+  var relSegments = relativePath.split('/');
+
+  for (var segment in relSegments) {
+    if (segment == '.') continue;
+    if (segment == '..') {
+      if (segments.isNotEmpty) segments.removeLast();
+    } else {
+      segments.add(segment);
+    }
+  }
+
+  return segments.join('/');
 }
 
 void _generateStructure(String projectName) {
@@ -205,15 +275,15 @@ void _generateStructure(String projectName) {
   }
 
   // Create core files
-  createMainFile();
-  createAppFile();
+  createMainFile(projectName);
+  createAppFile(projectName);
   createThemeFiles();
-  createDIFile();
-  createNetworkFiles();
+  createDIFile(projectName);
+  createNetworkFiles(projectName);
   createErrorFiles();
   createUtilsFiles();
   createExtensionFiles();
-  createRouteFiles();
+  createRouteFiles(projectName);
   createSharedFiles();
 
   // Check if pubspec.yaml exists before creating
@@ -247,7 +317,7 @@ void _generateStructure(String projectName) {
   // Create sample feature as example
   print('');
   print('📚 Creating sample feature: "home"...');
-  createFeature('home', withSample: true);
+  createFeature('home', projectName: projectName);
 }
 
 

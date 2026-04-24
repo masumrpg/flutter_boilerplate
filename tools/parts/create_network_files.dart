@@ -1,11 +1,11 @@
 import 'dart:io';
 
-void createNetworkFiles() {
+void createNetworkFiles(String projectName) {
   // api_client.dart
   final clientContent = '''
 import 'package:dio/dio.dart';
-import '../config/env.dart';
-import 'interceptors.dart';
+import 'package:$projectName/core/config/env.dart';
+import 'package:$projectName/core/network/interceptors.dart';
 
 class ApiClient {
   late final Dio _dio;
@@ -57,28 +57,29 @@ class ApiClient {
   // interceptors.dart
   final interceptorsContent = '''
 import 'package:dio/dio.dart';
+import 'package:$projectName/core/utils/logger_utils.dart';
 
 class LoggingInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    print('REQUEST[\${options.method}] => PATH: \${options.path}');
-    print('Headers: \${options.headers}');
-    print('Data: \${options.data}');
+    LoggerUtils.info('REQUEST[\${options.method}] => PATH: \${options.path}');
+    LoggerUtils.debug('Headers: \${options.headers}');
+    LoggerUtils.debug('Data: \${options.data}');
     super.onRequest(options, handler);
   }
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    print('RESPONSE[\${response.statusCode}] => PATH: \${response.requestOptions.path}');
-    print('Data: \${response.data}');
+    LoggerUtils.success('RESPONSE[\${response.statusCode}] => PATH: \${response.requestOptions.path}');
+    LoggerUtils.debug('Data: \${response.data}');
     super.onResponse(response, handler);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    print('ERROR[\${err.response?.statusCode}] => PATH: \${err.requestOptions.path}');
-    print('Message: \${err.message}');
-    print('Data: \${err.response?.data}');
+    LoggerUtils.error('ERROR[\${err.response?.statusCode}] => PATH: \${err.requestOptions.path}');
+    LoggerUtils.error('Message: \${err.message}');
+    LoggerUtils.debug('Data: \${err.response?.data}');
     super.onError(err, handler);
   }
 }

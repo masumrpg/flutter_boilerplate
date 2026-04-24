@@ -82,9 +82,9 @@ void injectRouteForPage(String feature, String page, String pageClass) {
   // Check if already injected
   if (content.contains('const ${pageClass}Page()')) return;
 
-  // Import insertion - use correct file name
+  final actualProjectName = getProjectName();
   final fileName = page == feature ? '${feature}_page' : '${feature}_${page}_page';
-  final importStatement = 'import \'../features/$feature/ui/pages/$fileName.dart\';';
+  final importStatement = "import 'package:$actualProjectName/features/$feature/ui/pages/$fileName.dart';";
   if (!content.contains(importStatement)) {
     final lastImportIndex = content.lastIndexOf('import ');
     if (lastImportIndex != -1) {

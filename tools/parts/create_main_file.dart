@@ -1,22 +1,22 @@
 import 'dart:io';
 
-void createMainFile() {
+void createMainFile(String projectName) {
   final content = '''
 import 'package:flutter/material.dart';
+import 'package:$projectName/app.dart';
+import 'package:$projectName/core/di/service_locator.dart';
+import 'package:$projectName/shared/blocs/app_bloc_observer.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'app.dart';
-import 'core/di/service_locator.dart';
-import 'shared/blocs/app_bloc_observer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Setup dependency injection
+  
+  // Initialize Service Locator
   await setupServiceLocator();
-
-  // Setup BLoC observer
+  
+  // Set BLoC observer
   Bloc.observer = AppBlocObserver();
-
+  
   runApp(const App());
 }
 ''';
