@@ -511,52 +511,10 @@ class ${featureClass}Page extends StatelessWidget {
 
   print('✅ Feature "$feature" created successfully!');
 
-  // Inject route name only (the path constant)
+  // Inject route name and configuration (except for home feature which is initial)
   injectRouteName(feature);
-
-  // Inject route for the created page if it's not the home feature (which is already in the initial router)
   if (feature != 'home') {
-    // Import insertion for the page
-    final file = File('lib/routes/app_router.dart');
-    if (file.existsSync()) {
-      var content = file.readAsStringSync();
-
-      // Import insertion
-      final importStatement = "import 'package:$actualProjectName/features/$feature/ui/pages/${feature}_page.dart';";
-      if (!content.contains(importStatement)) {
-        final lastImportIndex = content.lastIndexOf('import ');
-        if (lastImportIndex != -1) {
-          final endOfLastImport = content.indexOf(';', lastImportIndex) + 1;
-          content = content.replaceRange(
-            endOfLastImport,
-            endOfLastImport,
-            '\n$importStatement',
-          );
-        }
-      }
-
-      // Route insertion
-      final routesMatch = RegExp(r'routes:\s*(?:<[^>]+>)?\s*\[').firstMatch(content);
-      if (routesMatch != null) {
-        final routesStartIndex = routesMatch.end - 1; // Index of '['
-        final routesEndIndex = findMatchingBracket(
-          content,
-          routesStartIndex,
-        );
-        if (routesEndIndex != -1) {
-          final routeEntry = '''
-      GoRoute(
-        path: RouteNames.$feature,
-        name: RouteNames.$feature,
-        builder: (context, state) => const ${featureClass}Page(),
-      ),
-''';
-
-          content = content.replaceRange(routesEndIndex, routesEndIndex, routeEntry);
-          file.writeAsStringSync(content);
-        }
-      }
-    }
+    injectRoute(feature, featureClass);
   }
 
   if (withSample) {

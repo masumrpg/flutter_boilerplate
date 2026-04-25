@@ -8,29 +8,26 @@ import 'package:go_router/go_router.dart';
 import 'package:$projectName/routes/route_names.dart';
 import 'package:$projectName/features/home/ui/pages/home_page.dart';
 import 'package:$projectName/shared/pages/splash_page.dart';
+import 'package:$projectName/shared/pages/not_found_page.dart';
 
 class AppRouter {
   static final router = GoRouter(
-    initialLocation: RouteNames.splash,
+    initialLocation: RoutePaths.splash,
     routes: [
       GoRoute(
-        path: RouteNames.splash,
+        path: RoutePaths.splash,
         name: RouteNames.splash,
         builder: (context, state) => const SplashPage(),
       ),
       GoRoute(
-        path: RouteNames.home,
+        path: RoutePaths.home,
         name: RouteNames.home,
         builder: (context, state) => const HomePage(),
       ),
     ],
 
     // Error handling
-    errorBuilder: (context, state) => Scaffold(
-      body: Center(
-        child: Text('Page not found: \${state.uri}'),
-      ),
-    ),
+    errorBuilder: (context, state) => const NotFoundPage(),
   );
 }
 ''';
@@ -39,6 +36,16 @@ class AppRouter {
   // route_names.dart
   final namesContent = '''
 class RouteNames {
+  static const String splash = 'splash';
+  static const String home = 'home';
+  static const String login = 'login';
+  static const String register = 'register';
+  static const String settings = 'settings';
+  static const String profile = 'profile';
+  static const String profileEdit = 'profileEdit';
+}
+
+class RoutePaths {
   static const String splash = '/splash';
   static const String home = '/';
   static const String login = '/login';
@@ -50,8 +57,78 @@ class RouteNames {
 ''';
   File('lib/routes/route_names.dart').writeAsStringSync(namesContent);
 
-  // splash_page.dart
+  // not_found_page.dart
   Directory('lib/shared/pages').createSync(recursive: true);
+  final notFoundContent = '''
+import 'package:flutter/material.dart';
+import 'package:$projectName/routes/route_names.dart';
+import 'package:$projectName/core/extensions/context_extension.dart';
+
+class NotFoundPage extends StatelessWidget {
+  const NotFoundPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.search_off_rounded,
+                size: 80,
+                color: theme.colorScheme.primary.withValues(alpha: 0.5),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                '404',
+                style: theme.textTheme.displayMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Page Not Found',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                "The page you're looking for doesn't exist or has been moved.",
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+              ),
+              const SizedBox(height: 40),
+              ElevatedButton.icon(
+                onPressed: () => context.goNamed(RouteNames.home),
+                icon: const Icon(Icons.home_rounded),
+                label: const Text('Back to Home'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+''';
+  File('lib/shared/pages/not_found_page.dart').writeAsStringSync(notFoundContent);
+
+  // splash_page.dart
   final splashContent = '''
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -85,7 +162,7 @@ class _SplashPageState extends State<SplashPage>
 
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
-        context.go(RouteNames.home);
+        context.goNamed(RouteNames.home);
       }
     });
   }
@@ -196,5 +273,5 @@ class _SplashPageState extends State<SplashPage>
 ''';
   File('lib/shared/pages/splash_page.dart').writeAsStringSync(splashContent);
 
-  print('✅ Created: Route files');
+  print('✅ Created: Route files (Hardened)');
 }

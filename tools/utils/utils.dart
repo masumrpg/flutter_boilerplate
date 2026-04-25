@@ -7,6 +7,8 @@ int findMatchingBracket(String text, int openIndex) {
     closeIndex++;
     if (text[closeIndex] == '[') counter++;
     if (text[closeIndex] == ']') counter--;
+    if (text[closeIndex] == '{') counter++;
+    if (text[closeIndex] == '}') counter--;
   }
   return counter == 0 ? closeIndex : -1;
 }
@@ -15,23 +17,81 @@ void injectRouteName(String feature) {
   final file = File('lib/routes/route_names.dart');
   if (!file.existsSync()) return;
 
-  final content = file.readAsStringSync();
-  // Check if variable name already exists to avoid duplicates (e.g. 'home')
-  if (content.contains('String $feature =')) return;
+  var content = file.readAsStringSync();
+  final featureName = feature.toLowerCase();
+  final routeConstant = toCamelCase(featureName);
+  
+  // Check if variable name already exists in RouteNames class
+  if (content.contains('static const String $routeConstant =')) return;
 
-  final routeName = '/$feature';
-  final routeConst = "  static const String $feature = '$routeName';";
+  final nameConst = "  static const String $routeConstant = '$featureName';";
+  final pathConst = "  static const String $routeConstant = '/$featureName';";
 
   final lines = content.split('\n');
-  final lastConstIndex = lines.lastIndexWhere(
-    (line) => line.trim().startsWith('static const String'),
-  );
-
-  if (lastConstIndex != -1) {
-    lines.insert(lastConstIndex + 1, routeConst);
-    file.writeAsStringSync(lines.join('\n'));
-    print('   ➕ Injected route constant: RouteNames.$feature');
+  
+  // --- Inject into RouteNames class ---
+  int routeNamesClassStart = lines.indexWhere((line) => line.contains('class RouteNames'));
+  int routePathsClassStart = lines.indexWhere((line) => line.contains('class RoutePaths'));
+  
+  if (routeNamesClassStart != -1) {
+    int routeNamesEnd = (routePathsClassStart != -1) ? routePathsClassStart : lines.length;
+    
+    // Try to find the last constant in RouteNames
+    int insertIndex = -1;
+    for (int i = routeNamesEnd - 1; i > routeNamesClassStart; i--) {
+      if (lines[i].trim().startsWith('static const String')) {
+        insertIndex = i + 1;
+        break;
+      }
+    }
+    
+    // If no constants, find the opening brace
+    if (insertIndex == -1) {
+      for (int i = routeNamesClassStart; i < routeNamesEnd; i++) {
+        if (lines[i].contains('{')) {
+          insertIndex = i + 1;
+          break;
+        }
+      }
+    }
+    
+    if (insertIndex != -1) {
+      lines.insert(insertIndex, nameConst);
+      // Refresh indices after insertion
+      routePathsClassStart = lines.indexWhere((line) => line.contains('class RoutePaths'));
+    }
   }
+
+  // --- Inject into RoutePaths class ---
+  if (routePathsClassStart != -1) {
+    int routePathsEnd = lines.length;
+    
+    // Try to find the last constant in RoutePaths
+    int insertIndex = -1;
+    for (int i = routePathsEnd - 1; i > routePathsClassStart; i--) {
+      if (lines[i].trim().startsWith('static const String')) {
+        insertIndex = i + 1;
+        break;
+      }
+    }
+    
+    // If no constants, find the opening brace
+    if (insertIndex == -1) {
+      for (int i = routePathsClassStart; i < routePathsEnd; i++) {
+        if (lines[i].contains('{')) {
+          insertIndex = i + 1;
+          break;
+        }
+      }
+    }
+    
+    if (insertIndex != -1) {
+      lines.insert(insertIndex, pathConst);
+    }
+  }
+
+  file.writeAsStringSync(lines.join('\n'));
+  print('   ➕ Injected route constant: RouteNames.$routeConstant & RoutePaths.$routeConstant');
 }
 
 void injectRoute(String feature, String featureClass) {
@@ -39,14 +99,16 @@ void injectRoute(String feature, String featureClass) {
   if (!file.existsSync()) return;
 
   var content = file.readAsStringSync();
+  final featureName = feature.toLowerCase();
+  final routeConstant = toCamelCase(featureName);
 
   // Check if already injected
-  if (content.contains('path: RouteNames.$feature')) return;
+  if (content.contains('path: RoutePaths.$routeConstant')) return;
 
   // Import insertion
   final projectName = getProjectName();
   final importStatement =
-      "import 'package:$projectName/features/$feature/ui/pages/${feature}_page.dart';";
+      "import 'package:$projectName/features/$featureName/ui/pages/${featureName}_page.dart';";
   if (!content.contains(importStatement)) {
     final lastImportIndex = content.lastIndexOf('import ');
     if (lastImportIndex != -1) {
@@ -60,7 +122,6 @@ void injectRoute(String feature, String featureClass) {
   }
 
   // Route insertion
-  // Look for the routes list [ ... ]
   final routesMatch = RegExp(r'routes:\s*(?:<[^>]+>)?\s*\[').firstMatch(content);
   if (routesMatch == null) return;
 
@@ -71,28 +132,20 @@ void injectRoute(String feature, String featureClass) {
   );
   if (routesEndIndex == -1) return;
 
-  // Inject before the closing bracket of routes list
   final routeEntry =
       '''
       GoRoute(
-        path: RouteNames.$feature,
-        name: RouteNames.$feature,
+        path: RoutePaths.$routeConstant,
+        name: RouteNames.$routeConstant,
         builder: (context, state) => const ${featureClass}Page(),
       ),
 ''';
 
-  // If we found a GoRoute, we try to find its end and insert after it,
-  // or just insert before the list end if simpler.
-  // Safest is to insert before the last closing bracket of the list.
-
-  // Finding the last ']' of the list is tricky with nested routes.
-  // Let's use string manipulation to insert before the list's closing bracket.
-  // The _findMatchingBracket gives us the index of ']', so we insert before it.
-
+  // Insert before the closing bracket of the routes list
   content = content.replaceRange(routesEndIndex, routesEndIndex, routeEntry);
 
   file.writeAsStringSync(content);
-  print('   ➕ Injected route configuration for $feature');
+  print('   ➕ Injected route configuration for $featureName');
 }
 
 String getProjectName() {
@@ -104,8 +157,106 @@ String getProjectName() {
       return match.group(1)!;
     }
   }
-  // Fallback to directory name if pubspec is missing or invalid
   return Directory.current.path.split(Platform.pathSeparator).last.replaceAll('-', '_').toLowerCase();
+}
+
+void injectPageRoute(String feature, String page, String pageClass) {
+  final featureName = feature.toLowerCase();
+  final pageName = page.toLowerCase();
+  
+  // 1. Inject into RouteNames/RoutePaths
+  final routeNamesFile = File('lib/routes/route_names.dart');
+  if (routeNamesFile.existsSync()) {
+    final routeConstant = toCamelCase(pageName == featureName ? featureName : '${featureName}_$pageName');
+    final routePath = pageName == featureName ? '/$featureName' : '/$featureName/$pageName';
+    
+    var content = routeNamesFile.readAsStringSync();
+    if (!content.contains('static const String $routeConstant =')) {
+      final nameConst = "  static const String $routeConstant = '$routeConstant';";
+      final pathConst = "  static const String $routeConstant = '$routePath';";
+
+      final lines = content.split('\n');
+      
+      // Inject Name
+      int namesClassStart = lines.indexWhere((line) => line.contains('class RouteNames'));
+      int pathsClassStart = lines.indexWhere((line) => line.contains('class RoutePaths'));
+      
+      if (namesClassStart != -1) {
+        int namesEnd = (pathsClassStart != -1) ? pathsClassStart : lines.length;
+        int insertIndex = -1;
+        for (int i = namesEnd - 1; i > namesClassStart; i--) {
+          if (lines[i].trim().startsWith('static const String')) { insertIndex = i + 1; break; }
+        }
+        if (insertIndex == -1) {
+          for (int i = namesClassStart; i < namesEnd; i++) {
+            if (lines[i].contains('{')) { insertIndex = i + 1; break; }
+          }
+        }
+        if (insertIndex != -1) {
+          lines.insert(insertIndex, nameConst);
+          pathsClassStart = lines.indexWhere((line) => line.contains('class RoutePaths'));
+        }
+      }
+
+      // Inject Path
+      if (pathsClassStart != -1) {
+        int pathsEnd = lines.length;
+        int insertIndex = -1;
+        for (int i = pathsEnd - 1; i > pathsClassStart; i--) {
+          if (lines[i].trim().startsWith('static const String')) { insertIndex = i + 1; break; }
+        }
+        if (insertIndex == -1) {
+          for (int i = pathsClassStart; i < pathsEnd; i++) {
+            if (lines[i].contains('{')) { insertIndex = i + 1; break; }
+          }
+        }
+        if (insertIndex != -1) lines.insert(insertIndex, pathConst);
+      }
+      
+      routeNamesFile.writeAsStringSync(lines.join('\n'));
+      print('   ➕ Injected route constant: RouteNames.$routeConstant & RoutePaths.$routeConstant');
+    }
+  }
+
+  // 2. Inject into AppRouter
+  final routerFile = File('lib/routes/app_router.dart');
+  if (routerFile.existsSync()) {
+    var content = routerFile.readAsStringSync();
+    if (!content.contains('const $pageClass()')) {
+      final projectName = getProjectName();
+      final routeConstant = toCamelCase(pageName == featureName ? featureName : '${featureName}_$pageName');
+      final fileName = pageName == featureName ? '${featureName}_page' : '${featureName}_${pageName}_page';
+      
+      // Import
+      final importStatement = "import 'package:$projectName/features/$featureName/ui/pages/$fileName.dart';";
+      if (!content.contains(importStatement)) {
+        final lastImportIndex = content.lastIndexOf('import ');
+        if (lastImportIndex != -1) {
+          final endOfLastImport = content.indexOf(';', lastImportIndex) + 1;
+          content = content.replaceRange(endOfLastImport, endOfLastImport, '\n$importStatement');
+        }
+      }
+
+      // Route
+      final routesMatch = RegExp(r'routes:\s*(?:<[^>]+>)?\s*\[').firstMatch(content);
+      if (routesMatch != null) {
+        final routesStartIndex = routesMatch.end - 1;
+        final routesEndIndex = findMatchingBracket(content, routesStartIndex);
+        if (routesEndIndex != -1) {
+          final routeEntry = '''
+      GoRoute(
+        path: RoutePaths.$routeConstant,
+        name: RouteNames.$routeConstant,
+        builder: (context, state) => const $pageClass(),
+      ),
+''';
+          content = content.replaceRange(routesEndIndex, routesEndIndex, routeEntry);
+          routerFile.writeAsStringSync(content);
+          print('   ➕ Injected route configuration for $featureName/$pageName');
+        }
+      }
+    }
+  }
 }
 
 String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
